@@ -8,7 +8,7 @@ module CustomNeo4jMatchers
 
     def matches?(actual)
       @actual = Neo4j::Cypher.query(&actual).to_s
-      @actual == @expected || (@alternative && (@alternative == @expected))
+      @actual == @expected || (@alternative && (@alternative == @actual))
     end
 
     def expected
@@ -20,7 +20,12 @@ module CustomNeo4jMatchers
     end
 
     def failure_message_for_should
-      %Q[expected #{@actual} to be "#{@expected}"]
+      if @alternative
+        %Q[expected #{@actual} to be "#{@expected}"]
+      else
+        %Q[expected #{@actual} to be "#{@expected}" or "#{@alternative}"]
+      end
+
     end
 
     def failure_message_for_should_not
