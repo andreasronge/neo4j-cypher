@@ -80,7 +80,6 @@ module Neo4j
           if c.respond_to?(:clause_type) && c.clause_type == :create
             clause_list.delete(c)
             c.as_create_path!
-            puts "TO #{to_or_from.class}, delete #{to_or_from.respond_to?(:clause) && to_or_from.clause.clause_type == :create}"
           end
         end
 

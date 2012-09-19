@@ -2,7 +2,6 @@ require 'rubygems'
 require "bundler/setup"
 
 unless ENV['TRAVIS']
-  puts "NOT TRAVIS"
   require 'simplecov'
   SimpleCov.start
 end
