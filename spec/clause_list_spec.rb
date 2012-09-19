@@ -104,6 +104,50 @@ describe Neo4j::Cypher::ClauseList do
       subject.to_cypher.should == 'WHERE hello'
     end
 
+    context 'when pushed' do
+      before do
+        subject.push
+      end
+
+      it 'is empty' do
+        subject.should be_empty
+      end
+
+      it 'can add none return and start items' do
+        subject.insert(where)
+        subject.to_a.should == [where]
+      end
+
+
+      it 'does not add start and return items' do
+        subject.insert(start)
+        subject.insert(ret)
+        subject.to_a.should == []
+      end
+
+      context 'when popped' do
+        before do
+          subject.pop
+        end
+
+        it 'contains the old clauses' do
+          subject.to_a.should == [where]
+        end
+      end
+
+      context 'when popped after pushed a start clause' do
+        before do
+          subject.insert(start)
+          subject.pop
+        end
+
+        it 'contains the old clauses and the start clause' do
+          subject.to_a.should == [start, where]
+        end
+      end
+
+    end
+
     context 'adds several other where nodes' do
       subject do
         s = Neo4j::Cypher::ClauseList.new

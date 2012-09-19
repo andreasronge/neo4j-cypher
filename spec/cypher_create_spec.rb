@@ -151,7 +151,7 @@ describe "Neo4j::Cypher" do
         it do
           Proc.new do
             node(1) > rel(:KNOWS) > node(:other).create_path { |other| other > rel(:works) > node } > rel(:KNOWS) > node(2).create_path(node(:other)) { |_, t| node > rel(:friends) > t }; :other
-          end.should be_cypher(%Q[START v4=node(1),v2=node(2) MATCH (v4)-[:`KNOWS`]->(other)-[:`KNOWS`]->(v2) WITH v2,other CREATE (v3)-[:`friends`]->(other),other CREATE (other)-[:`works`]->(v1) RETURN other])
+          end.should be_cypher(%Q[START v4=node(1),v2=node(2) MATCH (v4)-[:`KNOWS`]->(other)-[:`KNOWS`]->(v2) WITH other CREATE (other)-[:`works`]->(v1),v2,other CREATE (v3)-[:`friends`]->(other) RETURN other])
         end
       end
 
@@ -193,7 +193,7 @@ describe "Neo4j::Cypher" do
       describe "(node(2) > rel > node(1)).nodes.foreach {|n| n[:marked] = true}" do
         it do
           Proc.new { (node(2) > rel > node(1)).nodes.foreach {|n| n[:marked] = true}}.should \
-            be_cypher "START v1=node(2),v2=node(1) MATCH v3 = (v1)-[?]->(v2) FOREACH (x in nodes(v3) : SET x.marked = true) RETURN v3"
+            be_cypher "START v2=node(2),v3=node(1) MATCH v1 = (v2)-[?]->(v3) FOREACH (x in nodes(v1) : SET x.marked = true) RETURN v1"
         end
 
       end

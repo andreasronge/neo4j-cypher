@@ -5,6 +5,12 @@ module Neo4j
       attr_accessor :variables
       include Enumerable
 
+      def initialize(variables = [])
+        @variables = variables
+        @clause_list = []
+        @insert_order = 0
+      end
+
       def empty?
         !first
       end
@@ -17,19 +23,31 @@ module Neo4j
         @clause_list.each { |c| yield c }
       end
 
-      def initialize(variables = [])
-        @variables = variables
+      def push
+        raise "Only support stack of depth 2" if @old_clause_list
+        @old_clause_list = @clause_list
         @clause_list = []
+        self
       end
 
-      def create_sub_list
-        ClauseList.new(self.variables)
+      def pop
+        @clause_list = @old_clause_list
+        @clause_list.sort!
+        @old_clause_list = nil
+        self
       end
 
       def insert(clause)
-        if Clause::ORDER.include?(clause.clause_type)
-          @clause_list << clause
-          @clause_list.sort!
+        ctype = clause.clause_type
+
+        if Clause::ORDER.include?(ctype)
+          # which list should we add the cluase to, the root or the sub list ?
+          # ALl the start and return clauses should move to the clause_list
+          c = (@old_clause_list && (ctype == :start || ctype == :return)) ? @old_clause_list : @clause_list
+          c << clause
+          @insert_order += 1
+          clause.insert_order = @insert_order
+          c.sort!
         end
         self
       end
@@ -45,7 +63,7 @@ module Neo4j
 
       def debug
         puts "ClauseList id: #{object_id}, vars: #{variables.size}"
-        @clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.class} id: #{c.object_id}" }
+        @clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.class} id: #{c.object_id} order #{c.insert_order}" }
       end
 
       def find_all(*clause_types)
@@ -85,7 +103,12 @@ module Neo4j
       end
 
       def to_cypher
-        group_by_clause.map { |list| "#{list.first.prefix} #{join_group(list)}" }.join(' ')
+        # Sub lists, like in with clause should not have a clause prefix like WHERE or MATCH
+        group_by_clause.map { |list| "#{prefix(list)}#{join_group(list)}" }.join(' ')
+      end
+
+      def prefix(list)
+        @old_clause_list && ![:set, :delete, :create].include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
       end
 
     end

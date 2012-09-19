@@ -27,7 +27,7 @@ describe "Neo4j::Cypher" do
     describe 'extract, filter, coalesce, head, last, tail, collect' do
       describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] }} do
         it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] } }.should \
-      be_cypher(%{START v1=node(3),v2=node(4),v3=node(1) MATCH v4 = (v1)-->(v2)-->(v3) RETURN extract(x in nodes(v4) : x.age)}) }
+      be_cypher(%{START v2=node(3),v3=node(4),v4=node(1) MATCH v1 = (v2)-->(v3)-->(v4) RETURN extract(x in nodes(v1) : x.age)}) }
       end
 
       describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x.length == 3}} do

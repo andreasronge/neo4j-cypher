@@ -10,7 +10,7 @@ module Neo4j
               :return => 'RETURN', :order_by => 'ORDER BY', :skip => 'SKIP', :limit => 'LIMIT', :set => 'SET',
               :delete => 'DELETE', :foreach => 'FOREACH'}
 
-      attr_accessor :clause_type, :clause_list, :eval_context, :expr
+      attr_accessor :clause_type, :clause_list, :eval_context, :expr, :insert_order
 
       def initialize(clause_list, clause_type, eval_context = Context::Empty)
         @clause_type = clause_type
@@ -20,11 +20,12 @@ module Neo4j
         else
           @eval_context = eval_context
         end
+        self.insert_order = 0
         clause_list.insert(self)
       end
 
       def <=>(other)
-        clause_position <=> other.clause_position
+        clause_position == other.clause_position ? insert_order <=> other.insert_order : clause_position <=> other.clause_position
       end
 
       def clause_position
@@ -55,6 +56,31 @@ module Neo4j
 
       def prefix
         NAME[clause_type]
+      end
+
+      def create_clause_args_for(args)
+        args.map do |arg|
+          case arg
+            when Neo4j::Cypher::ReturnItem::EvalContext, Neo4j::Cypher::Property::EvalContext
+              Argument.new_arg_from_clause(arg.clause)
+            when String, Symbol
+              Argument.new_arg_from_string(arg, clause_list)
+            when Neo4j::Cypher::NodeVar::EvalContext, Neo4j::Cypher::Start::EvalContext
+              arg.clause
+            else
+              raise "not supported #{arg.class}"
+          end
+        end
+      end
+
+      def create_arg_list(args)
+        args.map do |a|
+          if a.is_a?(String) || a.is_a?(Symbol)
+            a.to_sym
+          else
+            a.clause.var_name
+          end
+        end
       end
 
     end

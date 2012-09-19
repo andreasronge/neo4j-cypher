@@ -10,6 +10,7 @@ module Neo4j
 
       def initialize(from)
         super(from.clause_list, :match)
+        puts "MATCH START #{object_id}, from #{@from && @from.var_name}"
         @from = from
         @match_list = []
       end
@@ -49,6 +50,7 @@ module Neo4j
       def to_cypher
         match_string = @match_list.map(&:to_cypher).join
         match_string = algorithm ? "#{algorithm}(#{match_string})" : match_string
+        puts "TO CYPHER #{object_id}, #{match_string}"
         referenced? ? "#{var_name} = #{match_string}" : match_string
       end
 
@@ -72,6 +74,16 @@ module Neo4j
           super(match_start)
           @match_start = match_start
           @match_start.match_list << self
+        end
+
+        def convert_create_clauses(to_or_from)
+          # perform a create operation in a match clause ?
+          c = to_or_from.respond_to?(:clause) ? to_or_from.clause : to_or_from
+          if c.respond_to?(:clause_type) && c.clause_type == :create
+            clause_list.delete(c)
+            c.as_create_path!
+            puts "TO #{to_or_from.class}, delete #{to_or_from.respond_to?(:clause) && to_or_from.clause.clause_type == :create}"
+          end
         end
 
         def clause
@@ -179,6 +191,7 @@ module Neo4j
         def initialize(match_start, from)
           super(match_start)
           @from = from
+          convert_create_clauses(from)
         end
 
         def set_rels(rels)
@@ -251,9 +264,12 @@ module Neo4j
         def initialize(match_start, from, rel_var, to, dir)
           super(match_start)
           @from = from
+          convert_create_clauses(from)
+          convert_create_clauses(to)
           join_previous! if @from.kind_of?(MatchContext) && @from.join_previous?
           @rel_var = rel_var
           @dir = dir
+          convert_create_clauses(to)
           @to = NodeVar.as_var(match_start.clause_list, to)
         end
 
@@ -282,6 +298,8 @@ module Neo4j
           super(match_start)
           @from = from
           @to = to
+          convert_create_clauses(from)
+          convert_create_clauses(to)
           @dir = dir
         end
 
