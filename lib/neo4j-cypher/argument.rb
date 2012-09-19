@@ -10,7 +10,6 @@ module Neo4j
         var_name ||= self.var_name
         @expr = var_name
         as_alias(var_name)
-        puts "Argument #{expr.inspect}, var_name #{var_name.inspect}"
         @return_value = (expr != var_name.to_s) ? "#{expr} as #{var_name}" : expr
       end
 
@@ -19,12 +18,10 @@ module Neo4j
       end
 
       def self.new_arg_from_clause(clause)
-        puts "new_arg_from_clause #{clause.class}, #{clause.var_name.inspect}"
         Argument.new(clause.clause_list, clause.return_value, clause.as_alias? && clause.var_name)
       end
 
       def self.new_arg_from_string(string, clause_list)
-        puts "new_arg_from_string #{string.inspect}"
         Argument.new(clause_list, string.to_s, string)
       end
 

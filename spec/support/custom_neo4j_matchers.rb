@@ -1,13 +1,14 @@
 module CustomNeo4jMatchers
   class BeCypher
 
-    def initialize(expected)
+    def initialize(expected, alternative = nil)
       @expected = expected
+      @alternative = alternative
     end
 
     def matches?(actual)
       @actual = Neo4j::Cypher.query(&actual).to_s
-      @actual == @expected
+      @actual == @expected || (@alternative && (@alternative == @expected))
     end
 
     def expected
@@ -35,7 +36,7 @@ module CustomNeo4jMatchers
     end
   end
 
-  def be_cypher(expected)
-    BeCypher.new(expected)
+  def be_cypher(expected, alternative=nil)
+    BeCypher.new(expected, alternative)
   end
 end

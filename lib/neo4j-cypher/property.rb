@@ -37,12 +37,6 @@ module Neo4j
         @var.match_value
       end
 
-      # @private
-      def function(func_name_pre, func_name_post = "")
-        Operator.new(clause_list, nil, func_name_pre, func_name_post).eval_context
-      end
-
-      # @private
       def unary_operator(op, clause_type = :where, post_fix = nil)
         # TODO DELETE THIS ?
         Operator.new(clause_list, self, nil, op, clause_type, post_fix).unary!

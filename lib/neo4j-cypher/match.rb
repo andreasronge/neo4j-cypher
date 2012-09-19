@@ -10,7 +10,6 @@ module Neo4j
 
       def initialize(from)
         super(from.clause_list, :match)
-        puts "MATCH START #{object_id}, from #{@from && @from.var_name}"
         @from = from
         @match_list = []
       end
@@ -50,7 +49,6 @@ module Neo4j
       def to_cypher
         match_string = @match_list.map(&:to_cypher).join
         match_string = algorithm ? "#{algorithm}(#{match_string})" : match_string
-        puts "TO CYPHER #{object_id}, #{match_string}"
         referenced? ? "#{var_name} = #{match_string}" : match_string
       end
 

@@ -37,7 +37,7 @@ describe "Neo4j::Cypher" do
         it do
           Proc.new do
             node.new(:name => 'Andres', :age => 42)
-          end.should be_cypher(%Q[CREATE (v1 {name : 'Andres', age : 42}) RETURN v1])
+          end.should be_cypher("CREATE (v1 {name : 'Andres', age : 42}) RETURN v1", "CREATE (v1 {age : 42, name : 'Andres'}) RETURN v1")
         end
       end
 

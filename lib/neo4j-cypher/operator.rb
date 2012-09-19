@@ -103,7 +103,6 @@ module Neo4j
 
       def to_cypher
         if @right_operand
-          # puts "  @right_operand #{@right_operand.obj.class} to_s #{@right_operand.to_s}, return_value #{@right_operand.obj.respond_to?(:expr) && @right_operand.obj.expr}"
           neg ? "#{neg}(#{@left_operand.to_s} #{op} #{@right_operand.to_s})" : "#{@left_operand.to_s} #{op} #{@right_operand.to_s}"
         else
           left_p, right_p = @left_operand.to_s[0..0] == '(' ? ['', ''] : ['(', ')']

@@ -4,6 +4,7 @@ gemspec
 
 group 'development' do
   gem 'pry'
+  gem 'simplecov', :require => false
 end
 
 group 'test' do

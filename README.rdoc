@@ -20,6 +20,13 @@ See the rspecs !
   end
 
 
+"START v2=node(1) MATCH (v2)-[v1:`knows`]->(other) WHERE v1.since > 1994 and other.name = "foo" RETURN other"
+
+  Neo4j::Cypher.query do
+    node(1) > (rel(:knows)[:since] > 1994) > (node(:other)[:name] == 'foo'); :other
+  end
+
+
 "START v2=node(1) MATCH (v2)-[v1:`friends`]->(v3) WHERE (v1.since = 1994) RETURN v3"
 
   Neo4j::Cypher.query do
@@ -33,9 +40,9 @@ See the rspecs !
     node(2, 3, 4, 1)[:property?].count
   end
 
-"START v1=node(42) MATCH (v1)-[:favorite]->(stuff)<-[:favorite]-(person) WHERE not((v1)-[:friend]-(person)) RETURN person.name,count(stuff) ORDER BY count(stuff) DESC"
+"START v1=node(42) MATCH (v1)-[:`favorite`]->(stuff)<-[:`favorite`]-(person) WHERE not((v1)-[:`friend`]-(person)) RETURN person.name,count(stuff) ORDER BY count(stuff) DESC"
 
   Neo4j::Cypher.query do
-    node(42).where_not { |m| m - ':friend' - :person } > ':favorite' > :stuff < ':favorite' < :person
+    node(42).where_not { |m| m - :friend - :person } > :favorite > :stuff < :favorite < :person
     ret(node(:person)[:name], count(:stuff).desc)
   end
