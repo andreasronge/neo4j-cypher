@@ -30,11 +30,11 @@ module Neo4j
       def create_clause_args_for(args)
         args.map do |arg|
           case arg
-            when Neo4j::Core::Cypher::ReturnItem::EvalContext, Neo4j::Core::Cypher::Property::EvalContext
+            when Neo4j::Cypher::ReturnItem::EvalContext, Neo4j::Cypher::Property::EvalContext
               Argument.new_arg_from_clause(arg.clause)
             when String, Symbol
               Argument.new_arg_from_string(clause_list, arg)
-            when Neo4j::Core::Cypher::NodeVar::EvalContext, Neo4j::Core::Cypher::Start::EvalContext
+            when Neo4j::Cypher::NodeVar::EvalContext, Neo4j::Cypher::Start::EvalContext
               arg.clause
             else
               raise "not supported #{arg.class}"

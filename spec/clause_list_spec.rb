@@ -104,7 +104,24 @@ describe Neo4j::Cypher::ClauseList do
       subject.to_cypher.should == 'WHERE hello'
     end
 
+    context 'adds several other where nodes' do
+      subject do
+        s = Neo4j::Cypher::ClauseList.new
+        s.insert(where)
+      end
+
+      it 'returns them in the order it was inserted' do
+        w1 = clause(:where)
+        w2 = clause(:where)
+        subject.insert(w2)
+        subject.insert(w1)
+        subject.to_a.should == [where, w2, w1]
+      end
+    end
+
   end
+
+
 
   context 'it has a match and return clause' do
     subject do

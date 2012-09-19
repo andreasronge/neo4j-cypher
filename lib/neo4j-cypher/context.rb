@@ -1,16 +1,16 @@
 module Neo4j
   module Cypher
     module Context
-      # @return [Neo4j::Core::Cypher:Clause]
+      # @return [Neo4j::Cypher:Clause]
       attr_accessor :clause
 
-      # @param [Neo4j::Core::Cypher:Clause] clause the clause for this eval context
+      # @param [Neo4j::Cypher:Clause] clause the clause for this eval context
       def initialize(clause)
         @clause = clause
 
       end
 
-      # @return [Array<Neo4j::Core::Cypher:Clause>] the sorted clause list
+      # @return [Array<Neo4j::Cypher:Clause>] the sorted clause list
       def clause_list
         @clause.clause_list
       end

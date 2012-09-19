@@ -41,7 +41,7 @@ module Neo4j
         case rel_or_symbol
           when String, Symbol
             RelVar.new(clause_list, rel_or_symbol).rel_type
-          when Neo4j::Core::Cypher::RelVar::EvalContext
+          when Neo4j::Cypher::RelVar::EvalContext
             rel_or_symbol.clause.rel_type
           else
             raise "Unknown type of relationship, got #{rel_or_symbol.class}"

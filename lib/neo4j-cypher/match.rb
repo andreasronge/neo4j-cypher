@@ -200,7 +200,7 @@ module Neo4j
         def set_rel(rel)
           return set_rels(rel) if rel.is_a?(Array)
 
-          if rel.is_a?(Neo4j::Core::Cypher::RelVar::EvalContext)
+          if rel.is_a?(Neo4j::Cypher::RelVar::EvalContext)
             @rel_var = rel.clause
           elsif rel.respond_to?(:clause) && rel.clause.match_value
             @rel_var = rel.clause

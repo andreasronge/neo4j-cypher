@@ -6,7 +6,7 @@ module CustomNeo4jMatchers
     end
 
     def matches?(actual)
-      @actual = Neo4j::Cypher.new(&actual).to_s
+      @actual = Neo4j::Cypher.query(&actual).to_s
       @actual == @expected
     end
 
