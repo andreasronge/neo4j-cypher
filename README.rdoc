@@ -7,7 +7,7 @@ The JRuby neo4j-core gem's cypher dsl has been moved to this gem.
 
 See {Neo4j Wiki Cypher}[https://github.com/andreasronge/neo4j/wiki/Neo4j::Core-Cypher]
 
-See the rspecs !
+See the rspecs ! (> 99% test coverage)
 
 
 === Random Examples
