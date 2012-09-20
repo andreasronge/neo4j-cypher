@@ -102,6 +102,18 @@ describe "Neo4j::Cypher" do
         it { Proc.new { n=node(3, 1, 2); ret(n).asc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name}) }
       end
 
+      describe %{       n=node(3,1,2); ret(n).desc(n[:name])} do
+        it { Proc.new { n=node(3, 1, 2); ret(n).desc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name DESC}) }
+      end
+
+
+      describe %{node(3, 1, 2).asc(:name)} do
+        it { Proc.new { node(3, 1, 2).asc(:name) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name}) }
+      end
+
+      describe %{node(3, 1, 2).desc(:name)} do
+        it { Proc.new { node(3, 1, 2).desc(:name) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name DESC}) }
+      end
 
       describe %{node(1,2,3)[:name].asc} do
         it { Proc.new { node(1,2,3)[:name].asc }.should be_cypher(%{START v1=node(1,2,3) RETURN v1.name ORDER BY v1.name}) }

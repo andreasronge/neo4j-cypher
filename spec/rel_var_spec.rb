@@ -4,6 +4,13 @@ require 'spec_helper'
 describe Neo4j::Cypher::RelVar do
   let(:clause_list) { [] }
 
+  context 'rel(Object.new)' do
+    it 'should raise an exception' do
+      lambda do
+        Neo4j::Cypher::RelVar.new(clause_list, Object.new)
+      end.should raise_error
+    end
+  end
   context "rel('')" do
     before { clause_list.stub(:create_variable).and_return(:v1) }
     subject { Neo4j::Cypher::RelVar.new(clause_list, '') }

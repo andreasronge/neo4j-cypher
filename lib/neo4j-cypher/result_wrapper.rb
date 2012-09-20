@@ -2,6 +2,7 @@ module Neo4j
   module Cypher
     # Wraps the Cypher query result.
     # Loads the node and relationships wrapper if possible and use symbol as column keys.
+    # This is typically used in the native neo4j bindings since result does is not a Ruby enumerable with symbols as keys.
     # @notice The result is a once forward read only Enumerable, work if you need to read the result twice - use #to_a
     #
     # @example

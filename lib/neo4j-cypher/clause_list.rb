@@ -61,26 +61,10 @@ module Neo4j
         @clause_list.delete(c)
       end
 
-      def debug
-        puts "ClauseList id: #{object_id}, vars: #{variables.size}"
-        @clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.class} id: #{c.object_id} order #{c.insert_order}" }
-      end
-
-      def find_all(*clause_types)
-        if !clause_types.empty?
-          clause_types.inject([]) { |memo, ct| memo += find_all { |c| c.clause_type == ct }; memo }
-        else
-          super
-        end
-      end
-
-      def remove_all(*clause_types)
-        if !clause_types.empty?
-          clause_types.each { |ct| @clause_list.delete_if { |c| c.clause_type == ct } }
-        else
-          @clause_list.clear
-        end
-      end
+      #def debug
+      #  puts "ClauseList id: #{object_id}, vars: #{variables.size}"
+      #  @clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.class} id: #{c.object_id} order #{c.insert_order}" }
+      #end
 
       def create_variable(var)
         raise "Already included #{var}" if @variables.include?(var)

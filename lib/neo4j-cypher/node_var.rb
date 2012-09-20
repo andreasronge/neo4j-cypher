@@ -11,12 +11,6 @@ module Neo4j
         @var_name = var_name
       end
 
-      def as_property(name = var_name)
-        p = eval_context[:something].clause
-        p.expr = name
-        p
-      end
-
       def self.as_var(clause_list, something)
         if something.is_a?(Symbol) || something.is_a?(String)
           NodeVar.new(clause_list, something)

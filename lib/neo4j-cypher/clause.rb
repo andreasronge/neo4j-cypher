@@ -65,24 +65,11 @@ module Neo4j
               Argument.new_arg_from_clause(arg.clause)
             when String, Symbol
               Argument.new_arg_from_string(arg, clause_list)
-            when Neo4j::Cypher::NodeVar::EvalContext, Neo4j::Cypher::Start::EvalContext
-              arg.clause
             else
-              raise "not supported #{arg.class}"
+              arg.clause
           end
         end
       end
-
-      def create_arg_list(args)
-        args.map do |a|
-          if a.is_a?(String) || a.is_a?(Symbol)
-            a.to_sym
-          else
-            a.clause.var_name
-          end
-        end
-      end
-
     end
 
   end

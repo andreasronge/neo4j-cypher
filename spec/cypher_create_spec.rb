@@ -165,6 +165,15 @@ describe "Neo4j::Cypher" do
           end.should be_cypher(%Q[START v1=node(1),v2=node(3,4) WITH v1 CREATE UNIQUE (v1)-[r:KNOWS]->(v2) RETURN r])
         end
       end
+
+      describe "create_unique_path(node(1)) { |other| other > rel('r:KNOWS').ret > node(3, 4) }" do
+        it do
+          Proc.new do
+            create_unique_path(node(1)) { |other| other > rel('r:KNOWS').ret > node(3, 4) }
+          end.should be_cypher(%Q[START v1=node(1),v2=node(3,4) WITH v1 CREATE UNIQUE (v1)-[r:KNOWS]->(v2) RETURN r])
+        end
+      end
+
     end
 
     describe 'set' do

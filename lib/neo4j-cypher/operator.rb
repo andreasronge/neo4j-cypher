@@ -25,8 +25,6 @@ module Neo4j
           "'#{@obj.source}'"
         elsif @obj.respond_to?(:return_value)
           @obj.return_value.to_s
-        elsif @obj.respond_to?(:clause)
-          "#{@obj.clause.to_s}"
         else
           @obj.to_s
         end
@@ -54,31 +52,16 @@ module Neo4j
         clause_list.delete(right_operand) if right_operand.kind_of?(Clause)
 
         @neg = nil
-        if dsl
-          clause_list.delete(self)
-          eval_context.instance_exec(left_operand.as_property(self).eval_context, &dsl)
-        end
       end
 
       def separator
         " and "
       end
 
-      def quote(val)
-        if val.respond_to?(:var_name) && !val.kind_of?(Match)
-          val.var_name
-        else
-          val.is_a?(String) ? %Q["#{val}"] : val
-        end
-      end
-
       def match_value
         @left_operand.obj.match_value || expr
       end
 
-      def expr
-        @left_operand.to_s
-      end
 
       def var_name
         @left_operand.obj.var_name
@@ -122,11 +105,6 @@ module Neo4j
 
         def |(other)
           Operator.new(clause.clause_list, clause, other.clause, "or").eval_context
-        end
-
-        def -@
-          clause.not
-          self
         end
 
         def not

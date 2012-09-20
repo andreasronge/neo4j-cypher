@@ -22,7 +22,7 @@ module Neo4j
         if last_result.is_a?(Array)
           eval_context.ret(*last_result)
         elsif last_result.nil?
-          eval_context.ret(clause_list.last.eval_context)
+          eval_context.ret(clause_list.last.eval_context) unless clause_list.empty?
         else
           eval_context.ret(last_result)
         end

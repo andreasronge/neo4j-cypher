@@ -55,7 +55,6 @@ module Neo4j
         include MathFunctions
         include PredicateMethods
         include Aggregate
-        include Sortable # TODO REMOVE THIS LINE
 
         def asc
           ReturnItem.new(clause_list, self).eval_context.asc

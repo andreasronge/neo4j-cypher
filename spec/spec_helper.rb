@@ -1,9 +1,12 @@
 require 'rubygems'
 require "bundler/setup"
 
-unless ENV['TRAVIS']
+if ENV['COVERAGE']
   require 'simplecov'
-  SimpleCov.start
+  SimpleCov.start do
+    add_filter "/spec/"
+    add_group 'Source', 'lib'
+  end
 end
 
 require 'rspec'

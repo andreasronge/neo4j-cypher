@@ -5,10 +5,6 @@ module Neo4j
         @var_name ||= @clause_list.create_variable(self)
       end
 
-      def var_name?
-        !!@var_name
-      end
-
       def var_name=(new_name)
         @var_name = new_name.to_sym
       end

@@ -6,6 +6,13 @@ describe "Neo4j::Cypher" do
 
     describe 'where' do
 
+      describe '' do
+        it do
+          Proc.new do
+
+          end
+        end
+      end
       describe "(node(1) <=> node(:other_person).with(count){|_, foaf| foaf > 1}) >> node: other_person" do
         it do
           Proc.new do
@@ -77,7 +84,6 @@ describe "Neo4j::Cypher" do
           end.should be_cypher("START v2=node(2),v1=node(3) MATCH (v2)-[:KNOWS]->(knows) WITH knows,v1 WHERE (knows)-[:WORKS]->(v1) RETURN knows")
         end
       end
-
     end
 
     describe 'match' do

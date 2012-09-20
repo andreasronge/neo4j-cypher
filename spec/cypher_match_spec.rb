@@ -304,7 +304,12 @@ describe "Neo4j::Cypher" do
       it { Proc.new { a=node(3); a > ':knows' > :b > ':knows' > :c; a -':blocks' - :d -':knows' -:c; [a, :b, :c, :d] }.should be_cypher(%{START v1=node(3) MATCH (v1)-[:knows]->(b)-[:knows]->(c),(v1)-[:blocks]-(d)-[:knows]-(c) RETURN v1,b,c,d}) }
     end
 
+  end
 
+  describe 'allShortestPaths' do
+    describe %{ a, x=node(1), node(2); p = shortest_paths { a > '?*' > x }; p } do
+      it { Proc.new { a, x=node(1), node(2); p = shortest_paths { a > '?*' > x }; p }.should be_cypher(%{START v1=node(1),v2=node(2) MATCH v3 = allShortestPaths((v1)-[?*]->(v2)) RETURN v3}) }
+    end
+  end
 
   end
-end
