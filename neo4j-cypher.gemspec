@@ -19,7 +19,7 @@ translate a Ruby block (the dsl) to a cypher string.
   EOF
 
   s.require_path = 'lib'
-  s.files = Dir.glob("{bin,lib,config}/**/*") + %w(README.rdoc Gemfile neo4j-core.gemspec)
+  s.files = Dir.glob("{bin,lib,config}/**/*") + %w(README.rdoc Gemfile neo4j-cypher.gemspec)
   s.has_rdoc = true
   s.extra_rdoc_files = %w( README.rdoc )
   s.rdoc_options = ["--quiet", "--title", "Neo4j::Cypher", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
