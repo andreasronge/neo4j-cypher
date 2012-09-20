@@ -130,27 +130,6 @@ describe "Neo4j::Cypher" do
           end.should be_cypher("START n=node(42) MATCH (n)-[r]->(m) WITH n,collect(type(r)) as out_types,collect(m) as outgoing MATCH (n)<-[r]-(m) RETURN n,outgoing,out_types,collect(m) as incoming,collect(type(r)) as in_types")
         end
       end
-
     end
-
-    'start n=node(*) match n-[r]->m with n,collect(type(r)) as out_types, collect(m) as outgoing match n<-[r]-m return n,outgoing, out_types, collect(m) as incoming, collect(type(r)) as in_types'
-
-
-    "START a=node(2) MATCH a-[:KNOWS]-other WITH other MATCH other-[:WORKS]->work RETURN work"
-    "START a=node(2) MATCH a-[:KNOWS]-other WITH other, other.name as c WHERE c <> 'l' WITH other MATCH other-[:WORKS]->work RETURN work"
-
-    "START neo=node(1) MATCH neo-[:KNOWS]-other WITH other, other.name as c WHERE c = 'Morpheus' RETURN other"
-    "START neo=node(1) MATCH neo-[:KNOWS]-other WITH neo as q, other.name as c WHERE c = 'Morpheus' RETURN q"
-    "START neo=node(1) MATCH neo-[:KNOWS]-other WITH other as q, other.name as c WHERE c = 'Morpheus' RETURN q"
-    "START neo=node(1) MATCH neo-[:KNOWS]-other WITH other as q, other.name as c WHERE q = 'Morpheus' RETURN q"
-#
-#  describe "a = node(2); other = node; a > rel(:knows) > other; with(other, other.counter){|other, c| c == 1}; with(other){|other| other > rel(:works) > :work}; :work " do
-#
-#    "START a=node(2) MATCH a-[:KNOWS]-other WITH other, other.counter as c WHERE c = 1 WITH other MATCH other-[:WORKS]->work RETURN work"
-#  end
-#
-#
-#  "START n=node(127) MATCH(n)-[:friends]->(x) WITH n, collect(distinct x) as friends MATCH(n)-[:outer_only_friends]->(y) WITH n, collect(distinct y) as outer, friends RETURN collect(friends + outer) as stuff"
-
   end
 end

@@ -12,6 +12,9 @@ See the rspecs !
 
 === Random Examples
 
+Notice the last value returned is the return value (if possible).
+Matching relationships can be done with operators: <,>, -, and <=> or with the both, incoming and outgoing methods.
+
 "START v1=node(3) MATCH v2 = (v1)-[:`r`]->(x) RETURN v2"
 
   Neo4j::Cypher.query do
@@ -45,3 +48,24 @@ See the rspecs !
     node(42).where_not { |m| m - :friend - :person } > :favorite > :stuff < :favorite < :person
     ret(node(:person)[:name], count(:stuff).desc)
   end
+
+
+== Complex Example
+
+"START n=node(42) MATCH (n)-[r]->(m) WITH n,collect(type(r)) as out_types,collect(m) as outgoing MATCH (n)<-[r]-(m) RETURN n,outgoing,out_types,collect(m) as incoming,collect(type(r)) as in_types"
+
+  Neo4j::Cypher.query do
+    n = node(42).as(:n)
+    r = rel('r')
+    m = node(:m)
+    rel_types = r.rel_type.collect
+    end_nodes = m.collect
+
+    n.with_match(rel_types.as(:out_types), end_nodes.as(:outgoing)) { |n, _, _| n < r < m } > r > m
+
+    ret([n,
+         :outgoing,
+         :out_types,
+         end_nodes.as(:incoming),
+         rel_types.as(:in_types)])
+ end
