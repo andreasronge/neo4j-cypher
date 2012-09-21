@@ -14,6 +14,39 @@ describe Neo4j::Cypher::Result do
         Neo4j::Cypher::Result.new { node(1) }.to_s.should == 'START v1=node(1) RETURN v1'
       end
     end
+
+    describe '#return_names' do
+      context 'node(1)' do
+        subject { Neo4j::Cypher::Result.new { node(1) } }
+        its(:return_names) { should == [:v1]}
+      end
+
+      context 'node(1,2,3)[:name]' do
+        subject { Neo4j::Cypher::Result.new { node(1,2,3)[:name] } }
+        its(:to_s) { should == 'START v1=node(1,2,3) RETURN v1.name'}
+        its(:return_names) { should == [:'v1.name']}
+      end
+
+      context 'node(1,2,3)[:name].desc' do
+        subject { Neo4j::Cypher::Result.new { node(1,2,3)[:name].desc } }
+        its(:to_s) { should == 'START v1=node(1,2,3) RETURN v1.name ORDER BY v1.name DESC'}
+        its(:return_names) { should == [:'v1.name']}
+      end
+
+      context 'node(1,2,3).count.as(:score)' do
+        subject { Neo4j::Cypher::Result.new { node(1,2,3).count.as(:score) } }
+        its(:to_s) { should == 'START v1=node(1,2,3) RETURN count(v1) as score'}
+        its(:return_names) { should == [:'score']}
+      end
+
+      context '[node(1), node(2)]' do
+        subject { Neo4j::Cypher::Result.new { [node(1), node(2)] } }
+        its(:to_s) { should == 'START v1=node(1),v2=node(2) RETURN v1,v2'}
+        its(:return_names) { should == [:v1, :v2]}
+      end
+
+
+    end
   end
 
   describe 'Illegal Argument' do

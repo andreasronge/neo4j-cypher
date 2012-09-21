@@ -2,7 +2,7 @@ module Neo4j
   module Cypher
 
     class ClauseList
-      attr_accessor :variables
+      attr_accessor :variables, :clause_list
       include Enumerable
 
       def initialize(variables = [])
@@ -16,6 +16,10 @@ module Neo4j
       end
 
       def include?(clause_type)
+        !!find(clause_type)
+      end
+
+      def find(clause_type)
         @clause_list.find { |c| c.clause_type == clause_type }
       end
 

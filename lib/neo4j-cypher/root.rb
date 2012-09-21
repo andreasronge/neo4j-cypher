@@ -33,8 +33,8 @@ module Neo4j
       end
 
       def return_names
-        ret = clause_list.last
-        ret.respond_to?(:return_items) ? ret.return_items.map { |ri| ri.var_name.to_sym } : []
+        ret = clause_list.clause_list.find{|r| r.respond_to?(:return_items)}
+        ret ? ret.return_items.map { |ri| (ri.alias_name || ri.return_value).to_sym } : []
       end
 
       class EvalContext
