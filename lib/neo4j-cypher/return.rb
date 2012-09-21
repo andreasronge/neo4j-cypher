@@ -49,9 +49,9 @@ module Neo4j
       def to_cypher
         @orders.map do |pair|
           if pair[0] == :asc
-            pair[1].map(&:return_value).join(', ')
+            pair[1].map{|p| p.alias_name || p.return_value}.join(', ')
           else
-            pair[1].map(&:return_value).join(', ') + " DESC"
+            pair[1].map{|p| p.alias_name || p.return_value}.join(', ') + " DESC"
           end
         end.join(', ')
       end

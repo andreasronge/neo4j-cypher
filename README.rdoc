@@ -69,3 +69,26 @@ Matching relationships can be done with operators: <,>, -, and <=> or with the b
          end_nodes.as(:incoming),
          rel_types.as(:in_types)])
  end
+
+
+=== Co-Tagged Places - Places Related through Tags
+
+Find places that are tagged with the same tags: Determine the tags for place x. What else is tagged the same as x that is not x."
+
+"START place=node:node_auto_index(name = "CoffeeShop1") MATCH place-[:tagged]->tag<-[:tagged]-otherPlace RETURN otherPlace.name, collect(tag.name) ORDER By otherPlace.name desc"
+
+Can be written like this:
+
+  Neo4j::Cypher.query do
+    other_place = node(:otherPlace)
+    place = lookup('node_auto_index', 'name', 'CoffeeShop1').as(:place)
+    place > rel(':tagged') > node(:tag) < rel(':tagged') < other_place
+    ret other_place[:name].desc, node(:tag)[:name].collect
+  end
+
+
+Or in one line:
+
+  Neo4j::Cypher.query do
+    lookup('node_auto_index', 'name', 'CoffeeShop1') > rel(':tagged') > node(:tag).ret { |t| t[:name].collect } < rel(':tagged') < node(:otherPlace).ret { |n| n[:name].desc }
+  end

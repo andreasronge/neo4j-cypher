@@ -88,6 +88,16 @@ describe "Neo4j::Cypher" do
         it { Proc.new { node(3, 4)[:name].where { |n| n == "hej" }.as(:myname) }.should be_cypher(%q[START v1=node(3,4) WHERE (v1.name = "hej") RETURN v1.name as myname]) }
       end
 
+      describe %{node(3, 4)[:name].where { |n| n ==  node(42)[:name]}} do
+        it { Proc.new { node(3, 4)[:name].where { |n| n == node(42)[:name]} }.should be_cypher(%q[START v1=node(3,4),v2=node(42) WHERE (v1.name = v2.name) RETURN v1.name]) }
+      end
+
+      describe %{node(3, 4).where { |n| n == node(4) }} do
+        it { Proc.new { node(3, 4).where { |n| n == node(4) } }.should be_cypher(%q[START v1=node(3,4),v2=node(4) WHERE (v1 = v2) RETURN v1]) }
+      end
+
+# start n=node(*), x=node(2) match n--m where m <> x return n
+
       if RUBY_VERSION > "1.9.0"
         describe %{node(2).outgoing(:friends).where{|c| (c[:name] != 'kalle')}} do
           it { Proc.new { node(2).outgoing(:friends).where { |c| (c[:name] != 'kalle') } }.should \

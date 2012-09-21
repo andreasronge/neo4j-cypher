@@ -265,15 +265,13 @@ module Neo4j
 
       module Variable
         def where(&block)
-          x = block.call(self)
-          clause_list.delete(x)
+          x = RootClause::EvalContext.new(self).instance_exec(self, &block)
           Operator.new(clause_list, x.clause, nil, "").unary!
           self
         end
 
         def where_not(&block)
-          x = block.call(self)
-          clause_list.delete(x)
+          x = RootClause::EvalContext.new(self).instance_exec(self, &block)
           Operator.new(clause_list, x.clause, nil, "not").unary!
           self
         end
@@ -312,6 +310,19 @@ module Neo4j
       end
 
       module Matchable
+
+        ## Only in 1.9
+        if RUBY_VERSION > "1.9.0"
+          eval %{
+            def !=(other)
+              Operator.new(clause_list, clause, other, "<>").eval_context
+            end  }
+        end
+
+        def ==(other)
+          Operator.new(clause_list, clause, other, "=").eval_context
+        end
+
 
         def match(&cypher_dsl)
           RootClause::EvalContext.new(self).instance_exec(self, &cypher_dsl)

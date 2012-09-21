@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe "Cypher Cookbook Examples" do
 
-  describe "5.1.1. Find Groups" do
+  describe "Find Groups" do
     # See http://docs.neo4j.org/chunked/stable/cypher-cookbook-hyperedges.html
     #To find out in what roles a user is for a particular groups (here Group2), the following Cypher Query can traverse this HyperEdge node and provide answers.
     #
@@ -33,14 +33,14 @@ describe "Cypher Cookbook Examples" do
 
     it 'can be written in one line' do
       Proc.new do
-        lookup('node_auto_index', "name", "User1") > ':hasRoleInGroup' > node(:hyperEdge).match { |n| n > ':hasRole' > node(:role).ret{|r|r[:name]} } > ':hasGroup' > node(:group).where{|g| g[:name] == 'Group2'}
+        lookup('node_auto_index', "name", "User1") > ':hasRoleInGroup' > node(:hyperEdge).match { |n| n > ':hasRole' > node(:role).ret { |r| r[:name] } } > ':hasGroup' > node(:group).where { |g| g[:name] == 'Group2' }
       end.should be_cypher('START v1=node:node_auto_index(name="User1") MATCH (v1)-[:hasRoleInGroup]->(hyperEdge)-[:hasGroup]->(group),(hyperEdge)-[:hasRole]->(role) WHERE (group.name = "Group2") RETURN role.name')
 
     end
   end
 
 
-  describe '5.1.2. Find all groups and roles for a user' do
+  describe 'Find all groups and roles for a user' do
     #5.1.2. Find all groups and roles for a user
     #                                   Here, find all groups and the roles a user has, sorted by the roles names.
     #
@@ -67,14 +67,14 @@ describe "Cypher Cookbook Examples" do
     it 'can be written in one line' do
       Proc.new do
         lookup('node_auto_index', 'name', 'User1') > ':hasRoleInGroup' > node(:hyperEdge).match do |hyperEdge|
-          hyperEdge > rel(':hasRole') > node(:role).ret{|role| role[:name].asc}
-        end > rel(':hasGroup') > node(:group).ret {|group| group[:name]}
+          hyperEdge > rel(':hasRole') > node(:role).ret { |role| role[:name].asc }
+        end > rel(':hasGroup') > node(:group).ret { |group| group[:name] }
       end.should be_cypher('START v1=node:node_auto_index(name="User1") MATCH (v1)-[:hasRoleInGroup]->(hyperEdge)-[:hasGroup]->(group),(hyperEdge)-[:hasRole]->(role) RETURN role.name,group.name ORDER BY role.name')
     end
 
   end
 
-  describe '5.1.3 Find common groups based on shared roles' do
+  describe 'Find common groups based on shared roles' do
     #5.1.3. Find common groups based on shared roles
     #Assume you have a more complicated graph:
     #
@@ -108,8 +108,8 @@ describe "Cypher Cookbook Examples" do
     end
   end
 
-  describe "5.2. Basic Friend finding based on social neighborhood " do
-    it do
+  describe "Basic Friend finding based on social neighborhood " do
+    it 'can be written using > < operators' do
       Proc.new do
         joe=node(3)
         friends_of_friends = node(:friends_of_friends)
@@ -124,6 +124,7 @@ describe "Cypher Cookbook Examples" do
     it "also works with outgoing method instead of < operator" do
       Proc.new do
         joe=node(3)
+        # notice the last value returned from outgoing is the end node.
         friends_of_friends = joe.outgoing(:knows).outgoing(:knows)
         joe.outgoing(rel?(:knows).null, friends_of_friends)
         ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
@@ -132,5 +133,61 @@ describe "Cypher Cookbook Examples" do
 
   end
 
+  describe "Co-Tagged Places - Places Related through Tags" do
+    #
+    #Find places that are tagged with the same tags:
+    #
+    #Determine the tags for place x.
+    #What else is tagged the same as x that is not x."
+    #   START place=node:node_auto_index(name = "CoffeeShop1")
+    #   MATCH place-[:tagged]->tag<-[:tagged]-otherPlace
+    #
+    #  RETURN otherPlace.name, collect(tag.name)
+    #  ORDER By otherPlace.name desc
+    it "can be written in many lines" do
+      Proc.new do
+        other_place = node(:otherPlace)
+        place = lookup('node_auto_index', 'name', 'CoffeeShop1').as(:place)
+        place > rel(':tagged') > node(:tag) < rel(':tagged') < other_place
+        ret other_place[:name].desc, node(:tag)[:name].collect
+      end.should be_cypher('START place=node:node_auto_index(name="CoffeeShop1") MATCH (place)-[:tagged]->(tag)<-[:tagged]-(otherPlace) RETURN otherPlace.name,collect(tag.name) ORDER BY otherPlace.name DESC')
+    end
 
+    it 'can be written in one line' do
+      Proc.new do
+        lookup('node_auto_index', 'name', 'CoffeeShop1') > rel(':tagged') > node(:tag).ret { |t| t[:name].collect } < rel(':tagged') < node(:otherPlace).ret { |n| n[:name].desc }
+      end.should be_cypher('START v1=node:node_auto_index(name="CoffeeShop1") MATCH (v1)-[:tagged]->(tag)<-[:tagged]-(otherPlace) RETURN collect(tag.name),otherPlace.name ORDER BY otherPlace.name DESC')
+    end
+  end
+
+
+  describe "Find friends based on similar tagging" do
+    #To find people similar to me based on the taggings of their favorited items, one approach could be:
+    #Determine the tags associated with what I favorite.
+    #What else is tagged with those tags?
+    #Who favorites items tagged with the same tags?
+    #Sort the result by how many of the same things these people like.
+    #
+    #START me=node:node_auto_index(name = "Joe")
+    #MATCH me-[:favorite]->myFavorites-[:tagged]->tag<-[:tagged]-theirFavorites<-[:favorite]-people
+    #WHERE NOT(me=people)
+    #RETURN people.name as name, count(*) as similar_favs
+    #ORDER BY similar_favs DESC
+
+    it 'can be written in many lines' do
+      Proc.new do
+        me = lookup('node_auto_index', 'name', "Joe").as(:me)
+        me > rel(':favorite') > node(:myFavorites) > rel(':tagged') > node(:tag) < rel(':tagged') < node(:theirFavorites) < rel(':favorite') < node(:people)
+        me.where_not{|m| m == node(:people)}
+        ret node(:people)[:name].as(:name), count.desc.as(:similar_favs)
+      end.should be_cypher('START me=node:node_auto_index(name="Joe") MATCH (me)-[:favorite]->(myFavorites)-[:tagged]->(tag)<-[:tagged]-(theirFavorites)<-[:favorite]-(people) WHERE not(me = people) RETURN people.name as name,count(*) as similar_favs ORDER BY similar_favs DESC')
+    end
+
+    it 'can be written in one line' do
+      Proc.new do
+        lookup('node_auto_index', 'name', "Joe").where_not{|m| m == node(:people)} > rel(':favorite') > node(:myFavorites) > rel(':tagged') > node(:tag) < rel(':tagged') < node(:theirFavorites) < rel(':favorite') < node(:people).ret(node(:people)[:name].as(:name), count.desc.as(:similar_favs))
+      end.should be_cypher('START v1=node:node_auto_index(name="Joe") MATCH (v1)-[:favorite]->(myFavorites)-[:tagged]->(tag)<-[:tagged]-(theirFavorites)<-[:favorite]-(people) WHERE not(v1 = people) RETURN people.name as name,count(*) as similar_favs ORDER BY similar_favs DESC')
+    end
+
+  end
 end
