@@ -134,7 +134,7 @@ describe "Neo4j::Cypher" do
     describe "<<" do
 
       describe "node(3) << node(4)" do
-        it { Proc.new { node(3) << node(4)}.should be_cypher(%{START v1=node(3),v2=node(4) MATCH v3 = (v1)<--(v2) RETURN v3}) }
+        it { Proc.new { node(3) << node(4) }.should be_cypher(%{START v1=node(3),v2=node(4) MATCH v3 = (v1)<--(v2) RETURN v3}) }
       end
 
       describe "node(3) << node(:c) << :d; :c" do
@@ -162,7 +162,7 @@ describe "Neo4j::Cypher" do
       end
 
       describe "node(3) >> node(4)" do
-        it { Proc.new { node(3) >> node(4)}.should be_cypher(%{START v1=node(3),v2=node(4) MATCH v3 = (v1)-->(v2) RETURN v3}) }
+        it { Proc.new { node(3) >> node(4) }.should be_cypher(%{START v1=node(3),v2=node(4) MATCH v3 = (v1)-->(v2) RETURN v3}) }
       end
 
       describe "node(3) >> node(:c) >> :d; :c" do
@@ -215,7 +215,7 @@ describe "Neo4j::Cypher" do
       end
 
       describe "(node(5) > :r > :middle) >> node(7)" do
-        it { Proc.new {(node(5) > :r > :middle) >> node(7)}.should be_cypher("START v1=node(5),v2=node(7) MATCH v3 = (v1)-[:`r`]->(middle)-->(v2) RETURN v3") }
+        it { Proc.new { (node(5) > :r > :middle) >> node(7) }.should be_cypher("START v1=node(5),v2=node(7) MATCH v3 = (v1)-[:`r`]->(middle)-->(v2) RETURN v3") }
       end
 
       describe "node(3) > :r > node" do
@@ -312,4 +312,4 @@ describe "Neo4j::Cypher" do
     end
   end
 
-  end
+end

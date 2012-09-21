@@ -28,7 +28,7 @@ module Neo4j
       class EvalContext
         include Context
         include Alias
-        include ReturnOrder
+        include Sortable
         include Aggregate
         include Comparable
         include Returnable

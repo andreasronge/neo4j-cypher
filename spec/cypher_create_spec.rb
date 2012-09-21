@@ -191,7 +191,7 @@ describe "Neo4j::Cypher" do
 
       describe "node(2) >> node.ret.tap{|n| n[:surname] = 'Taylor'}" do
         it do
-          Proc.new { node(2) >> node.ret.tap { |n| n[:surname] = 'Taylor' } }.should be_cypher('START v2=node(2) MATCH (v2)-->(v1) SET v1.surname = "Taylor" RETURN v1')
+          Proc.new { node(2) >> node.ret.tap { |n| n[:surname] = 'Taylor' } }.should be_cypher('START v1=node(2) MATCH (v1)-->(v2) SET v2.surname = "Taylor" RETURN v2')
         end
       end
 

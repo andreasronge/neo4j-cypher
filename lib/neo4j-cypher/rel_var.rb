@@ -74,6 +74,8 @@ module Neo4j
         include Returnable
         include Aggregate
         include Alias
+        include Sortable
+
 
         def rel_type
           Property.new(clause, 'type').to_function!

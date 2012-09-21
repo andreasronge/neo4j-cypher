@@ -85,13 +85,14 @@ module Neo4j
     class ReturnItem
       include Clause
       include Referenceable
+      attr_accessor :order_by
 
       def initialize(clause_list, name_or_ref)
         super(clause_list, :return_item, EvalContext)
         if name_or_ref.respond_to?(:clause)
           @delegated_clause = name_or_ref.clause
           @delegated_clause.referenced!
-          as_alias(@delegated_clause.var_name) if @delegated_clause.as_alias?
+          as_alias(@delegated_clause.alias_name) if @delegated_clause.as_alias?
         else
           @return_value = name_or_ref.to_s
         end
@@ -102,7 +103,7 @@ module Neo4j
       end
 
       def return_value_with_alias
-        as_alias? ? "#{return_value} as #{var_name}" : return_value
+        as_alias? ? "#{return_value} as #{alias_name}" : return_value
       end
 
       def return_value

@@ -146,21 +146,33 @@ module Neo4j
       end
 
       module Sortable
-        def _sort_args(prop)
-          return self if prop.nil?
-          prop.is_a?(Symbol) ? Property.new(clause, prop).eval_context : prop
+        def _return_item
+          if self.is_a?(Neo4j::Cypher::ReturnItem::EvalContext)
+            self
+          else
+            @return_item ||= ReturnItem.new(clause_list, self).eval_context
+          end
         end
 
         def asc(*props)
-          @return_item ||= ReturnItem.new(clause_list, self).eval_context
-          @return_item.asc(_sort_args(props.first))
+          _return_item.asc(*props)
+          self
         end
 
         def desc(*props)
-          @return_item ||= ReturnItem.new(clause_list, self).eval_context
-          @return_item.desc(_sort_args(props.first))
+          _return_item.desc(*props)
+          self
         end
 
+        def skip(val)
+          _return_item.skip(val)
+          self
+        end
+
+        def limit(val)
+          _return_item.limit(val)
+          self
+        end
       end
 
       module ReturnOrder

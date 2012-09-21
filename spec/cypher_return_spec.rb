@@ -14,7 +14,7 @@ describe "Neo4j::Cypher" do
         it { Proc.new { node(42).ret { |n| [n, n[:name]] } }.should be_cypher('START v1=node(42) RETURN v1,v1.name') }
       end
 
-      describe 'node(42).ret { |n| n.as(:foo)} >> :foo' do
+      describe 'node(1,2,3).ret { |n| n[:name].as(:fname)} >> :foo' do
         it { Proc.new { node(1,2,3).ret { |n| n[:name].as(:fname)} >> :foo }.should be_cypher('START v1=node(1,2,3) MATCH (v1)-->(foo) RETURN v1.name as fname') }
       end
 
@@ -98,14 +98,49 @@ describe "Neo4j::Cypher" do
 
     describe 'sorting' do
 
-      describe %{       n=node(3,1,2); ret(n).asc(n[:name])} do
+      describe "node(3, 1, 2).asc(:name)" do
+        it { Proc.new { node(3, 1, 2).asc(:name)}.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name}) }
+      end
+
+      describe "node(3, 1, 2).desc(:age).asc(:name)" do
+        it { Proc.new { node(3, 1, 2).desc(:age).asc(:name)}.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.age DESC, v1.name}) }
+      end
+
+      describe "node(3, 1, 2).asc(:name)" do
+        it { Proc.new { node(3, 1, 2).asc(:name).skip(10)}.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name SKIP 10}) }
+      end
+
+      describe %{n=node(3,1,2); ret(n).asc(n[:name])} do
         it { Proc.new { n=node(3, 1, 2); ret(n).asc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name}) }
       end
 
+      # TODO
+      # ret(n.asc(:name))
+      # n.asc(:name)
+      # node(3,1,2).asc(:name)
       describe %{       n=node(3,1,2); ret(n).desc(n[:name])} do
         it { Proc.new { n=node(3, 1, 2); ret(n).desc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name DESC}) }
       end
 
+      describe %{node(1).outgoing(:friends).asc(:name)} do
+        it { Proc.new { node(1).outgoing(:friends).asc(:name) }.should be_cypher(%{START v1=node(1) MATCH (v1)-[:`friends`]->(v2) RETURN v2 ORDER BY v2.name}) }
+      end
+
+      describe %{node(1).outgoing(:friends).desc(:name)} do
+        it { Proc.new { node(1).outgoing(:friends).desc(:name) }.should be_cypher(%{START v1=node(1) MATCH (v1)-[:`friends`]->(v2) RETURN v2 ORDER BY v2.name DESC}) }
+      end
+
+      describe %{node(1).outgoing(rel(:friends).ret.asc(:since))} do
+        it { Proc.new { node(1).outgoing(rel(:friends).ret.asc(:since)) }.should be_cypher(%{START v2=node(1) MATCH (v2)-[v1:`friends`]->(v3) RETURN v1 ORDER BY v1.since}) }
+      end
+
+      describe %{node(1).outgoing(rel(:friends).ret.desc(:since))} do
+        it { Proc.new { node(1).outgoing(rel(:friends).ret.desc(:since)) }.should be_cypher(%{START v2=node(1) MATCH (v2)-[v1:`friends`]->(v3) RETURN v1 ORDER BY v1.since DESC}) }
+      end
+
+      describe %{node(1).outgoing(rel('r:friends')).ret(rel('r').asc(:name))} do
+        it { Proc.new { node(1).outgoing(rel('r:friends')).ret(rel('r').asc(:name)) }.should be_cypher(%{START v1=node(1) MATCH (v1)-[r:friends]->(v2) RETURN r ORDER BY r.name}) }
+      end
 
       describe %{node(3, 1, 2).asc(:name)} do
         it { Proc.new { node(3, 1, 2).asc(:name) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name}) }
@@ -137,7 +172,7 @@ describe "Neo4j::Cypher" do
       end
 
       describe %{       n=node(3,1,2); p=node(5,6); ret(n).asc(p[:age]).desc(n[:name]) } do
-        it { Proc.new { n=node(3, 1, 2); p=node(5, 6); ret(n).asc(p[:age]).desc(n[:name]) }.should be_cypher(%{START v2=node(3,1,2),v1=node(5,6) RETURN v2 ORDER BY v1.age, v2.name DESC}) }
+        it { Proc.new { n=node(3, 1, 2); p=node(5, 6); ret(n).asc(p[:age]).desc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2),v2=node(5,6) RETURN v1 ORDER BY v2.age, v1.name DESC}) }
       end
 
       describe %{       node(1,2,3).asc(:age)} do
@@ -149,7 +184,7 @@ describe "Neo4j::Cypher" do
       end
 
       describe %{       node(1,2,3).asc(:age).desc(:name).as(:kalle)} do
-        it { Proc.new { node(1,2,3).asc(:age).desc(:name).as(:kalle) }.should be_cypher(%{START v1=node(1,2,3) RETURN v1 as kalle ORDER BY v1.age, v1.name DESC}) }
+        it { Proc.new { node(1,2,3).asc(:age).desc(:name).as(:kalle) }.should be_cypher(%{START kalle=node(1,2,3) RETURN kalle ORDER BY kalle.age, kalle.name DESC}) }
       end
 
 
@@ -218,7 +253,7 @@ describe "Neo4j::Cypher" do
       end
 
       describe %{p = node(3) >> :b; [:b, p.length]} do
-        it { Proc.new { p = node(3) >> :b; [:b, p.length] }.should be_cypher(%{START v2=node(3) MATCH v1 = (v2)-->(b) RETURN b,length(v1)}) }
+        it { Proc.new { p = node(3) >> :b; [:b, p.length] }.should be_cypher(%{START v1=node(3) MATCH v2 = (v1)-->(b) RETURN b,length(v2)}) }
       end
 
 

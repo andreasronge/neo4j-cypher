@@ -18,8 +18,12 @@ module Neo4j
       end
 
       def as_alias(new_name)
-        @alias = true
+        @alias = new_name
         self.var_name = new_name
+      end
+
+      def alias_name
+        @alias
       end
 
       def as_alias?

@@ -194,6 +194,12 @@ describe Neo4j::Cypher::RelVar do
       its (:var_name) {should == :foo}
     end
 
+    context "rel(:foo)" do
+      subject { Neo4j::Cypher::RelVar.new(clause_list, :foo) }
+      its (:match_value) {should == 'v1:`foo`'}
+      its (:var_name) {should == :v1}
+    end
+
     context "rel('foo?')" do
       subject { Neo4j::Cypher::RelVar.new(clause_list, 'foo?') }
       its (:match_value) {should == 'foo?'}

@@ -41,6 +41,7 @@ module Neo4j
         include Returnable
         include Aggregate
         include Alias
+        include Sortable
 
 
         def initialize(clause)

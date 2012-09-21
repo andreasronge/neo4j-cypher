@@ -16,15 +16,25 @@ module Neo4j
       def initialize(var, prop_name = nil)
         super(var.clause_list, :property, EvalContext)
         @var = var
-        self.var_name = var.var_name
         @prop_name = prop_name
-        @expr = prop_name ? "#{var.var_name}.#{prop_name}" : var.var_name.to_s
       end
 
+      def var_name
+        @var.var_name
+      end
+
+      def expr
+        if @function
+          "#{@prop_name}(#{var_name})"
+        else
+          @prop_name ? "#{@var.var_name}.#{@prop_name}" : @var.var_name.to_s
+        end
+      end
 
       # @private
       def to_function!(prop_name = nil)
-        @expr = "#{prop_name || @prop_name}(#{var_name})"
+        @prop_name = prop_name if prop_name
+        @function = true
         eval_context
       end
 
@@ -44,7 +54,7 @@ module Neo4j
 
 
       def to_cypher
-        @expr
+        expr
       end
 
       class EvalContext

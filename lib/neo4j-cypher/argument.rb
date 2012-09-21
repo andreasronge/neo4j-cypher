@@ -18,7 +18,7 @@ module Neo4j
       end
 
       def self.new_arg_from_clause(clause)
-        Argument.new(clause.clause_list, clause.return_value, clause.as_alias? && clause.var_name)
+        Argument.new(clause.clause_list, clause.return_value, clause.as_alias? && clause.alias_name)
       end
 
       def self.new_arg_from_string(string, clause_list)
