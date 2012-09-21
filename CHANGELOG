@@ -1,3 +1,6 @@
+== 1.0.0.rc2 / 2012-09-21
+  Made it work with neo4j-core, neo4j-wrapper and the neo4j gems
+
 == 1.0.0.rc1 / 2012-09-20
   Huge refactoring and move from code neo4j-core
   Support for mutating Cypher and other 1.8 features

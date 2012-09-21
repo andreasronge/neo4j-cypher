@@ -92,3 +92,10 @@ Or in one line:
   Neo4j::Cypher.query do
     lookup('node_auto_index', 'name', 'CoffeeShop1') > rel(':tagged') > node(:tag).ret { |t| t[:name].collect } < rel(':tagged') < node(:otherPlace).ret { |n| n[:name].desc }
   end
+
+
+== License
+
+The neo4j-cypher gem is released under the {MIT license}[www.opensource.org/licenses/MIT]
+
+
