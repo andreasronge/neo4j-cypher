@@ -313,6 +313,11 @@ module Neo4j
 
       module Matchable
 
+        def match(&cypher_dsl)
+          RootClause::EvalContext.new(self).instance_exec(self, &cypher_dsl)
+          self
+        end
+
         def with(*args, &cypher_dsl)
           With.new(clause_list, :where, self, *args, &cypher_dsl)
           self

@@ -258,31 +258,6 @@ describe "Neo4j::Cypher" do
   end
 
   describe "Examples" do
-    describe "5.2. Basic Friend finding based on social neighborhood " do
-      it do
-        Proc.new do
-          joe=node(3)
-          friends_of_friends = node(:friends_of_friends)
-          joe > ':knows' > node(:friend) > ':knows' > friends_of_friends
-          r = rel('r?:knows').as(:r)
-          joe > r > friends_of_friends
-          r.null
-          ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
-        end.should be_cypher(%{START v1=node(3) MATCH (v1)-[:knows]->(friend)-[:knows]->(friends_of_friends),(v1)-[r?:knows]->(friends_of_friends) WHERE (r is null) RETURN friends_of_friends.name,count(*) ORDER BY count(*) DESC, friends_of_friends.name})
-      end
-
-      it "also works with outgoing method instead of < operator" do
-        Proc.new do
-          joe=node(3)
-          friends_of_friends = joe.outgoing(:knows).outgoing(:knows)
-          joe.outgoing(rel?(:knows).null, friends_of_friends)
-          ret(friends_of_friends[:name], count).desc(count).asc(friends_of_friends[:name])
-        end.should be_cypher(%{START v3=node(3) MATCH (v3)-[:`knows`]->(v4),(v4)-[:`knows`]->(v2),(v3)-[v1?:`knows`]->(v2) WHERE (v1 is null) RETURN v2.name,count(*) ORDER BY count(*) DESC, v2.name})
-      end
-
-    end
-
-
     describe "using model classes and declared relationship" do
       it "escape relationships name and allows is_a? instead of [:_classname] = klass" do
         class User

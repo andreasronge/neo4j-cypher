@@ -4,6 +4,21 @@ describe "Neo4j::Cypher" do
 
   describe 'MATCH' do
 
+    describe 'match' do
+      describe "node(3).match{|n| n <=> node(4) }" do
+        it { Proc.new { node(3).match{|n| n <=> node(4) }  }.should be_cypher("START v1=node(3),v2=node(4) MATCH (v1)--(v2) RETURN v1") }
+      end
+
+      describe "node(3).match{|n| n <=> node(4) }.match{|n| n >> node(5)}" do
+        it { Proc.new { node(3).match{|n| n <=> node(4) }.match{|n| n >> node(5)}  }.should be_cypher("START v1=node(3),v2=node(4),v3=node(5) MATCH (v1)--(v2),(v1)-->(v3) RETURN v1") }
+      end
+
+
+      describe "node(3).match{|n| n <=> node(:q).match{|n| n >> node(5)}}" do
+        it { Proc.new { node(3).match{|n| n <=> node(:q).match{|n| n >> node(5)}}  }.should be_cypher("START v1=node(3),v2=node(5) MATCH (q)-->(v2),(v1)--(q) RETURN v1") }
+      end
+    end
+
     describe "<=>" do
 
       describe "node(3) <=> :x" do

@@ -72,9 +72,14 @@ module Neo4j
 
       def initialize(clause_list, index_class, key, value)
         super(clause_list)
-        index_type = index_class.index_type(key.to_s)
-        raise "No index on #{index_class} property #{key}" unless index_type
-        @index_name = index_class.index_name_for_type(index_type)
+        if index_class.respond_to?(:index_type)
+          index_type = index_class.index_type(key.to_s)
+          raise "No index on #{index_class} property #{key}" unless index_type
+          @index_name = index_class.index_name_for_type(index_type)
+        else
+          @index_name = index_class
+        end
+
         @query = %Q[#{key}="#{value}"]
       end
 
