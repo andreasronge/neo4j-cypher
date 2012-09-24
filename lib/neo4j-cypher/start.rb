@@ -53,40 +53,46 @@ module Neo4j
       end
     end
 
-    class NodeQuery < Start
-      attr_reader :index_name, :query
-
-      def initialize(clause_list, index_class, query, index_type)
+    class LuceneQuery < Start
+      def initialize(clause_list, query, type)
         super(clause_list)
-        @index_name = index_class.index_name_for_type(index_type)
         @query = query
+        @type = type
       end
 
-      def to_cypher
-        "#{var_name}=node:#{index_name}(#{query})"
+      def self.lookup_node_by_class(clause_list, index_class, key, value)
+        LuceneQuery.new(clause_list, %Q[#{_index_name_for_key(index_class, key)}(#{key}="#{value}")], 'node')
       end
-    end
 
-    class NodeLookup < Start
-      attr_reader :index_name, :query
+      def self.query_node_by_class(clause_list, index_class, query, index_type)
+        LuceneQuery.new(clause_list, "#{_index_name_for_type(index_class, index_type)}(#{query})", 'node')
+      end
 
-      def initialize(clause_list, index_class, key, value)
-        super(clause_list)
+      def self.lookup_rel_by_class(clause_list, index_class, key, value)
+        LuceneQuery.new(clause_list, %Q[#{_index_name_for_key(index_class, key)}(#{key}="#{value}")], 'relationship')
+      end
+
+      def self.query_rel_by_class(clause_list, index_class, query, index_type)
+        LuceneQuery.new(clause_list, "#{_index_name_for_type(index_class, index_type)}(#{query})", 'relationship')
+      end
+
+      def self._index_name_for_type(index_class , index_type)
+        index_class.respond_to?(:index_name_for_type) ? index_class.index_name_for_type(index_type) : index_class.to_s
+      end
+
+      def self._index_name_for_key(index_class, key)
         if index_class.respond_to?(:index_type)
           index_type = index_class.index_type(key.to_s)
           raise "No index on #{index_class} property #{key}" unless index_type
-          @index_name = index_class.index_name_for_type(index_type)
+          index_class.index_name_for_type(index_type)
         else
-          @index_name = index_class
+          index_class.to_s
         end
-
-        @query = %Q[#{key}="#{value}"]
       end
 
       def to_cypher
-        %Q[#{var_name}=node:#{index_name}(#{query})]
+        "#{var_name}=#{@type}:#{@query}"
       end
-
     end
 
   end

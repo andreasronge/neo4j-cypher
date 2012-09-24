@@ -66,22 +66,43 @@ module Neo4j
         end
 
         # Specifies a start node by performing a lucene query.
-        # @param [Class] index_class a class responsible for an index
+        # @param [Class, String] index_class a class responsible for an index or the string value of the index
         # @param [String] q the lucene query
         # @param [Symbol] index_type the type of index
-        # @return [NodeQuery]
+        # @return [LuceneQuery]
         def query(index_class, q, index_type = :exact)
-          NodeQuery.new(clause_list, index_class, q, index_type).eval_context
+          LuceneQuery.query_node_by_class(clause_list, index_class, q, index_type).eval_context
         end
 
+        # Specifies a start relationship by performing a lucene query.
+        # @param [Class, String] index_class a class responsible for an index or the string value of the index
+        # @param [String] q the lucene query
+        # @param [Symbol] index_type the type of index
+        # @return [LuceneQuery]
+        def query_rel(index_class, q, index_type = :exact)
+          LuceneQuery.query_rel_by_class(clause_list, index_class, q, index_type).eval_context
+        end
+
+
         # Specifies a start node by performing a lucene query.
-        # @param [Class] index_class a class responsible for an index
+        # @param [Class, String] index_class a class responsible for an index or the string value of the index
         # @param [String, Symbol] key the key we ask for
         # @param [String, Symbol] value the value of the key we ask for
-        # @return [NodeLookup]
+        # @return [LuceneQuery]
         def lookup(index_class, key, value)
-          NodeLookup.new(clause_list, index_class, key, value).eval_context
+          LuceneQuery.lookup_node_by_class(clause_list, index_class, key, value).eval_context
         end
+
+
+        # Specifies a start relationship by performing a lucene query.
+        # @param [Class, String] index_class a class responsible for an index or the string value of the index
+        # @param [String, Symbol] key the key we ask for
+        # @param [String, Symbol] value the value of the key we ask for
+        # @return [LuceneQuery]
+        def lookup_rel(index_class, key, value)
+          LuceneQuery.lookup_rel_by_class(clause_list, index_class, key, value).eval_context
+        end
+
 
         # Creates a node variable.
         # It will create different variables depending on the type of the first element in the nodes argument.

@@ -205,6 +205,16 @@ describe "Neo4j::Cypher" do
 
 
   describe "query" do
+
+    describe %q[query('myindex', "name:A")] do
+      it { Proc.new { query('myindex', "name:A") }.should be_cypher(%q[START v1=node:myindex(name:A) RETURN v1]) }
+    end
+
+
+    describe %q[query_rel('myindex', "name:A")] do
+      it { Proc.new { query_rel('myindex', "name:A") }.should be_cypher(%q[START v1=relationship:myindex(name:A) RETURN v1]) }
+    end
+
     describe %q[query(FooIndex, "name:A")] do
       it { Proc.new { query(FooIndex, "name:A") }.should be_cypher(%q[START v1=node:fooindex_exact(name:A) RETURN v1]) }
     end
@@ -215,6 +225,11 @@ describe "Neo4j::Cypher" do
   end
   
   describe "lookup" do
+
+    describe %q[lookup_rel('myindex', "name", "A")] do
+      it { Proc.new { lookup_rel('myindex', "name", "A") }.should be_cypher(%q[START v1=relationship:myindex(name="A") RETURN v1]) }
+    end
+
     describe %q[lookup(FooIndex, "name", "A")] do
       it { Proc.new { lookup(FooIndex, "name", "A") }.should be_cypher(%q[START v1=node:fooindex_exact(name="A") RETURN v1]) }
     end
