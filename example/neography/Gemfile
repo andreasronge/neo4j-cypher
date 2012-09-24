@@ -1,0 +1,3 @@
+source 'http://rubygems.org'
+gem 'neography'
+gem 'neo4j-cypher', :path => '../..'

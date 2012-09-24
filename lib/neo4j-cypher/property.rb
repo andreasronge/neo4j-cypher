@@ -65,6 +65,7 @@ module Neo4j
         include MathFunctions
         include PredicateMethods
         include Aggregate
+        include Returnable
 
         def asc
           ReturnItem.new(clause_list, self).eval_context.asc

@@ -1,0 +1,12 @@
+Simple example of using Neography together with the neo4j-cypher gem.
+
+See http://maxdemarzi.com/2012/01/04/getting-started-with-ruby-and-neo4j/ and http://maxdemarzi.com/2012/01/07/cypher-with-neography/
+for the original example without the neo4j-cypher gem.
+
+To Run:
+rvm use 1.9.3 (for example)
+bundle install
+rake neo4j:install
+rake neo4j:start
+
+ruby foaf.rb
