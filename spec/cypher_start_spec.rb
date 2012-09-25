@@ -96,16 +96,16 @@ describe "Neo4j::Cypher" do
       it { Proc.new { node(3) > rel > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[?]->(x) RETURN v2") }
     end
 
-    describe "node(3) > rel('friends') > :x" do
-      it { Proc.new { node(3) > rel('friends') > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[friends]->(x) RETURN v2") }
-    end
-
     describe "node(3) > rel('r:friends') > :x" do
       it { Proc.new { node(3) > rel('r:friends') > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[r:friends]->(x) RETURN v2") }
     end
 
     describe "node(3) > rel(:friends) > :x" do
       it { Proc.new { node(3) > rel(:friends) > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[:`friends`]->(x) RETURN v2") }
+    end
+
+    describe "node(3) > rel(:friends, :work, :family) > :x" do
+      it { Proc.new { node(3) > rel(:friends, :work, :family) > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[:`friends`|`work`|`family`]->(x) RETURN v2") }
     end
 
     describe "r = rel('r:friends'); node(3) > r > :x; r" do
@@ -147,11 +147,17 @@ describe "Neo4j::Cypher" do
       it { Proc.new { node(3) > rel?(:friends) > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[?:`friends`]->(x) RETURN v2") }
     end
 
-
     describe "node(3) > rel?('r:friends') > :x" do
       it { Proc.new { node(3) > rel?('r:friends') > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[r?:friends]->(x) RETURN v2") }
     end
 
+    describe "node(3) > rel?(:friends, :work, :family) > :x" do
+      it { Proc.new { node(3) > rel?(:friends, :work, :family) > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[?:`friends`|`work`|`family`]->(x) RETURN v2") }
+    end
+
+    describe "node(3) > rel?(:friends, :work, :family).as(:r) > :x" do
+      it { Proc.new { node(3) > rel?(:friends, :work, :family).as(:r) > :x }.should be_cypher("START v1=node(3) MATCH v2 = (v1)-[r?:`friends`|`work`|`family`]->(x) RETURN v2") }
+    end
   end
 
   describe "start" do

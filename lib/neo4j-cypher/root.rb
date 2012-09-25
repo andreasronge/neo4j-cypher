@@ -127,14 +127,9 @@ module Neo4j
         def rel(*rels)
           if rels.first.is_a?(Fixnum) || rels.first.respond_to?(:neo_id)
             StartRel.new(clause_list, rels).eval_context
-          elsif rels.first.is_a?(Symbol)
-            RelVar.new(clause_list, ":`#{rels.first}`", rels[1]).eval_context
-          elsif rels.first.is_a?(String)
-            RelVar.new(clause_list, rels.first, rels[1]).eval_context
-          elsif rels.empty?
-            RelVar.new(clause_list, '?').eval_context
           else
-            raise "Unknown arg #{rels.inspect}"
+            props = rels.pop if rels.last.is_a?(Hash)
+            RelVar.new(clause_list, rels, props).eval_context
           end
         end
 

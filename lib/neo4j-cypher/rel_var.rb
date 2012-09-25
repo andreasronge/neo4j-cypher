@@ -9,32 +9,39 @@ module Neo4j
       def initialize(clause_list, expr, props = nil)
         super(clause_list, :rel_var, EvalContext)
 
-        case expr
-          when String
-            @match_value = expr.empty? ? '?' : expr.to_s
-            guess = expr.is_a?(String) && /([[:alpha:]_]*)/.match(expr)[1]
-            self.var_name = guess.to_sym if guess && !guess.empty?
-          when Symbol
-            @match_value = ":`#{expr}`"
-          else
-            raise "Illegal arg for rel #{expr.class}"
-        end
+        self.var_name = guess_var_name_from_string(expr.first) if expr.first.is_a?(String)
 
-        @match_value = "#@match_value #{to_prop_string(props)}" if props
+        if props
+          @match_value = "#{match_value_from_args(expr)} #{to_prop_string(props)}"
+        else
+          @match_value = match_value_from_args(expr)
+        end
+      end
+
+      def match_value_from_args(expr)
+        if expr.first.is_a?(String)
+          expr.first
+        elsif expr.first.is_a?(Symbol)
+          ":#{expr.map { |e| match_value_from_symbol(e) }.join('|')}"
+        elsif expr.empty?
+          '?'
+        else
+          # try to join several RelVars to one rel var
+          ":#{expr.map { |e| e.clause.rel_type }.join('|')}"
+        end
+      end
+
+      def guess_var_name_from_string(expr)
+        guess = /([[:alpha:]_]*)/.match(expr)[1]
+        guess && !guess.empty? && guess
+      end
+
+      def match_value_from_symbol(expr)
+        "`#{expr}`"
       end
 
       def rel_type
         @match_value.include?(':') ? @match_value.split(':').last : @match_value.sub('?', '')
-      end
-
-      def self.join(clause_list, rel_types)
-        rel_string = rel_types.map { |r| _rel_to_string(clause_list, r) }.join('|')
-
-        if rel_string.empty?
-          RelVar.new(clause_list, "")
-        else
-          RelVar.new(clause_list, ":#{rel_string}")
-        end
       end
 
       def self._rel_to_string(clause_list, rel_or_symbol)

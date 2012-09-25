@@ -196,7 +196,7 @@ module Neo4j
             set_rel(rels.first)
           else
             # wrap and maybe join several relationship strings
-            @rel_var = RelVar.join(clause_list, rels)
+            @rel_var = RelVar.new(clause_list, rels)
           end
           self
         end
@@ -215,7 +215,7 @@ module Neo4j
           elsif rel.respond_to?(:clause) && rel.clause.match_value
             @rel_var = rel.clause
           else
-            @rel_var = RelVar.new(clause_list, rel)
+            @rel_var = RelVar.new(clause_list, [rel])
           end
           self
         end
@@ -329,11 +329,6 @@ module Neo4j
           include Context
           include PredicateMethods
           attr_accessor :input, :iterable
-          #
-          #def each(&cypher_dsl)
-          #  Predicate.new(clause_list, :clause => clause, :input => input, :predicate_block => cypher_dsl)
-          #  #RootClause::EvalContext.new(self).instance_exec(*arg_exec, &cypher_dsl)
-          #end
         end
       end
 

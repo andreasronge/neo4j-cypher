@@ -52,7 +52,12 @@ describe "Neo4j::Cypher" do
     end
 
     describe "both" do
+
       describe "node(3).both" do
+        it { Proc.new { node(3).both }.should be_cypher("START v1=node(3) MATCH (v1)-[?]-(v2) RETURN v2") }
+      end
+
+      describe "node(3).both(rel)" do
         it { Proc.new { node(3).both(rel) }.should be_cypher("START v1=node(3) MATCH (v1)-[?]-(v2) RETURN v2") }
       end
 

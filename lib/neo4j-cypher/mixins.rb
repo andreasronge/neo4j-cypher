@@ -6,7 +6,7 @@ module Neo4j
       end
 
       def var_name=(new_name)
-        @var_name = new_name.to_sym
+        @var_name = new_name.to_sym if new_name
       end
 
       def referenced?
