@@ -28,6 +28,7 @@ describe Neo4j::Cypher::ClauseList do
 
   let(:start) {clause(:start)}
   let(:where) {clause(:where)}
+  let(:where2) {clause(:where)}
   let(:match) {clause(:match)}
   let(:ret) {clause(:return)}
 
@@ -35,6 +36,54 @@ describe Neo4j::Cypher::ClauseList do
     it 'can be sorted' do
       [where, ret, start, match].sort.should == [start, match, where, ret]
     end
+  end
+
+  describe 'push' do
+    subject { Neo4j::Cypher::ClauseList.new }
+
+    before do
+      subject.insert where
+      subject.push
+    end
+    #
+    #it 'creates a new list' do
+    #  subject.to_a.should be_empty
+    #end
+
+    it 'when pop it returns the previous list' do
+      subject.pop
+      subject.to_a.should == [where]
+    end
+
+    context 'when pushed twice' do
+      before do
+        subject.insert where2
+        subject.push
+      end
+
+      it 'creates a new list' do
+        subject.to_a.should be_empty
+      end
+
+      it 'when inserted a start item it insert it in the root list' do
+        subject.insert start
+        subject.pop
+        subject.pop
+        subject.to_a.should.should =~ [where, start]
+      end
+
+      it 'when pop it returns the previous list' do
+        subject.pop
+        subject.to_a.should == [where2]
+      end
+
+      it 'when pop twice it returns the first list' do
+        subject.pop
+        subject.pop
+        subject.to_a.should == [where]
+      end
+    end
+
   end
 
   context 'an empty stack' do

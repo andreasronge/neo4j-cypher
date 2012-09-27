@@ -84,7 +84,6 @@ module Neo4j
     # The return statement in the cypher query
     class ReturnItem
       include Clause
-      include Referenceable
       attr_accessor :order_by
 
       def initialize(clause_list, name_or_ref)

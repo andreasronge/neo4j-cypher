@@ -93,7 +93,7 @@ describe "Neo4j::Cypher" do
       end
 
       describe %{node(3, 4).where { |n| n == node(4) }} do
-        it { Proc.new { node(3, 4).where { |n| n == node(4) } }.should be_cypher(%q[START v1=node(3,4),v2=node(4) WHERE (v1 = v2) RETURN v1]) }
+        it { Proc.new { node(3, 4).where { |n| n == node(4) } }.should be_cypher(%q[START v1=node(3,4),v2=node(4) WHERE v1 = v2 RETURN v1]) }
       end
 
 # start n=node(*), x=node(2) match n--m where m <> x return n
@@ -101,7 +101,7 @@ describe "Neo4j::Cypher" do
       if RUBY_VERSION > "1.9.0"
         describe %{node(2).outgoing(:friends).where{|c| (c[:name] != 'kalle')}} do
           it { Proc.new { node(2).outgoing(:friends).where { |c| (c[:name] != 'kalle') } }.should \
-        be_cypher(%{START v2=node(2) MATCH (v2)-[:`friends`]->(v1) WHERE (v1.name <> "kalle") RETURN v1}) }
+        be_cypher(%{START v2=node(2) MATCH (v2)-[:`friends`]->(v1) WHERE v1.name <> "kalle" RETURN v1}) }
         end
       end
 
@@ -121,11 +121,11 @@ describe "Neo4j::Cypher" do
         end
       end
 
-      describe "node(1) << node(:person).where{|p| p >> node(7).as(:interest)}; :person" do
+      describe "node(1) << node(:person).where { |p| p >> node(7).as(:interest) }" do
         it do
           Proc.new do
-            node(1) << node(:person).where { |p| p >> node(7).as(:interest) }; :person
-          end.should be_cypher("START v1=node(1),interest=node(7) MATCH (v1)<--(person) WHERE ((person)-->(interest)) RETURN person")
+            node(1) << node(:person).where { |p| p >> node(7).as(:interest) }
+          end.should be_cypher("START v1=node(1),interest=node(7) MATCH (v1)<--(person) WHERE ((person)-->(interest)) RETURN v1")
         end
       end
 
@@ -140,18 +140,26 @@ describe "Neo4j::Cypher" do
     end
 
     describe 'where on path' do
-      describe "(node(1) << :person).where{|path| path.nodes.all? { |x| x[:age] > 30 }}.ret(:person)" do
+      describe "(node(1) << :person).where{|path| path.nodes.all? { |x| x[:age] > 30 }}" do
         it do
           Proc.new do
-            (node(1) << :person).where{|path| path.nodes.all? { |x| x[:age] > 30 }}.ret(:person)
-          end.should be_cypher("START v2=node(1) MATCH v1 = (v2)<--(person) WHERE (all(x in nodes(v1) WHERE x.age > 30)) RETURN person")
+            (node(1) << :person).where{|path| path.nodes.all? { |x| x[:age] > 30 }}
+          end.should be_cypher("START v2=node(1) MATCH v1 = (v2)<--(person) WHERE all(x in nodes(v1) WHERE x.age > 30) RETURN v1")
+        end
+      end
+
+      describe "(node(1) << :person).nodes.all? { |x| x[:age] > 30 }" do
+        it do
+          Proc.new do
+            (node(1) << :person).nodes.all? { |x| x[:age] > 30 }
+          end.should be_cypher("START v2=node(1) MATCH v1 = (v2)<--(person) WHERE all(x in nodes(v1) WHERE x.age > 30) RETURN v1")
         end
       end
 
 
       describe "(node(1)>>node).where{|p| p.nodes.single?{|n| n[:name] == 'Morpheus'}}" do
         it {Proc.new{ (node(1)>>node).where{|p| p.nodes.single?{|n| n[:name] == 'Morpheus'}}}.should \
-          be_cypher('START v2=node(1) MATCH v1 = (v2)-->(v3) WHERE (single(x in nodes(v1) WHERE x.name = "Morpheus")) RETURN v1')}
+          be_cypher('START v2=node(1) MATCH v1 = (v2)-->(v3) WHERE single(x in nodes(v1) WHERE x.name = "Morpheus") RETURN v1')}
       end
 
       describe "(node(1)>>node).where{|p| p.nodes.single?{|n| n[:name] == 'Morpheus'}}.where{|path| path.nodes.all? { |x| x[:age] > 30 }}" do
@@ -159,10 +167,20 @@ describe "Neo4j::Cypher" do
           be_cypher('START v2=node(1) MATCH v1 = (v2)-->(v3) WHERE (single(x in nodes(v1) WHERE x.name = "Morpheus")) and (all(x in nodes(v1) WHERE x.age > 30)) RETURN v1')}
       end
 
+      describe "(node(1)>>node).nodes.single?{|n| n[:name] == 'Morpheus'}.nodes.all? { |x| x[:age] > 30 }" do
+        it {Proc.new{ (node(1)>>node).nodes.single?{|n| n[:name] == 'Morpheus'}.nodes.all? { |x| x[:age] > 30 }}.should \
+          be_cypher('START v2=node(1) MATCH v1 = (v2)-->(v3) WHERE (single(x in nodes(v1) WHERE x.name = "Morpheus")) and (all(x in nodes(v1) WHERE x.age > 30)) RETURN v1')}
+      end
+
 
       describe "(node(1)>>node).where{|p| p.nodes.single?{|n| n[:name] == 'Morpheus'}}.where{|path| path.nodes.all? { |x| x[:age] > 30 }}" do
         it {pending "TODO "; Proc.new{ (node(1)>>node).where{|p| p.nodes.single?{|n| (n[:name] == 'Morpheus') &  p.nodes.all? { |x| x[:age] > 30 }}} }.should \
           be_cypher('START v1=node(1) MATCH v3 = (v1)-->(v2) WHERE (single(x in nodes(v3) WHERE (x.name = "Morpheus") and all(x in nodes(v3) WHERE x.age > 30))) RETURN v3')}
+      end
+
+      describe "(node(1)>>node.where{|n| n[:age] == 42}).nodes.single?{|n| n[:name] == 'Morpheus'}" do
+        it {Proc.new{ (node(1)>>node.where{|n| n[:age] == 42}).nodes.single?{|n| n[:name] == 'Morpheus'}}.should \
+          be_cypher('START v3=node(1) MATCH v2 = (v3)-->(v1) WHERE v1.age = 42 and single(x in nodes(v2) WHERE x.name = "Morpheus") RETURN v2')}
       end
 
       describe "(node(1)>>node.where{|n| n[:age] == 42}).where{|p| p.nodes.single?{|n| n[:name] == 'Morpheus'}}" do
@@ -313,19 +331,22 @@ describe "Neo4j::Cypher" do
 
     describe 'all?, any?, none?, single?' do
 
-      describe "        a = node(3); b=node(1); match p = a > '*1..3' > b; where p.nodes.all? { |x| x[:age] > 30 }; ret p" do
-        it { Proc.new { a = node(3); b=node(1); match p = a > '*1..3' > b; where p.nodes.all? { |x| x[:age] > 30 }; ret p }.should \
-      be_cypher(%{START v2=node(3),v3=node(1) MATCH v1 = (v2)-[*1..3]->(v3) WHERE all(x in nodes(v1) WHERE x.age > 30) RETURN v1}) }
+      describe "(node(3) > '*1..3' > node(1)).nodes.all? { |x| x[:age] > 30 }" do
+        it { Proc.new { (node(3) > '*1..3' > node(1)).nodes.all? { |x| x[:age] > 30 } }.should \
+          be_cypher(%{START v3=node(3),v4=node(1) MATCH v2 = (v3)-[*1..3]->(v4) WHERE all(x in nodes(v2) WHERE x.age > 30) RETURN nodes(v2)}) }
       end
 
       describe "  a = node(2); a[:array].any? { |x| x == 'one' }; a" do
-        it { Proc.new { a = node(2); a[:array].any? { |x| x == 'one' }; a }.should be_cypher(%{START v1=node(2) WHERE any(x in v1.array WHERE x = "one") RETURN v1}) }
+        it { Proc.new { node(2)[:array].any? { |x| x == 'one' } }.should be_cypher(%{START v1=node(2) WHERE any(x in v1.array WHERE x = "one") RETURN v1}) }
       end
 
       describe "        p=node(3)>'*1..3'>:b; p.nodes.none? { |x| x[:age] == 25 };p" do
         it { Proc.new { p=node(3)>'*1..3'>:b; p.nodes.none? { |x| x[:age] == 25 }; p }.should be_cypher(%{START v2=node(3) MATCH v1 = (v2)-[*1..3]->(b) WHERE none(x in nodes(v1) WHERE x.age = 25) RETURN v1}) }
       end
 
+      describe "(node(3)>'*1..3'>:b).nodes.none? { |x| x[:age] == 25 }" do
+        it { Proc.new { (node(3)>'*1..3'>:b).nodes.none? { |x| x[:age] == 25 }  }.should be_cypher("START v2=node(3) MATCH v1 = (v2)-[*1..3]->(b) WHERE none(x in nodes(v1) WHERE x.age = 25) RETURN v1")}
+      end
       describe %{       p = node(3)>>:b; p.nodes.single? { |x| x[:eyes] == 'blue' }; p } do
         it { Proc.new { p = node(3)>>:b; p.nodes.single? { |x| x[:eyes] == 'blue' }; p }.should \
       be_cypher(%{START v2=node(3) MATCH v1 = (v2)-->(b) WHERE single(x in nodes(v1) WHERE x.eyes = "blue") RETURN v1}) }

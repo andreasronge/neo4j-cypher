@@ -44,6 +44,18 @@ describe "Neo4j::Cypher" do
 
     end
 
+    describe 'nodes' do
+      describe '(node(3) >> :b >> node(2)).nodes' do
+        it { Proc.new{ (node(3) >> :b >> node(2)).nodes}.should be_cypher("START v1=node(3),v2=node(2) MATCH v3 = (v1)-->(b)-->(v2) RETURN nodes(v3)")}
+      end
+    end
+
+    describe 'rels' do
+      describe '(node(3) >> :b >> node(2)).rels' do
+        it { Proc.new{ (node(3) >> :b >> node(2)).rels}.should be_cypher("START v1=node(3),v2=node(2) MATCH v3 = (v1)-->(b)-->(v2) RETURN relationships(v3)")}
+      end
+    end
+
     describe 'extract, filter, coalesce, head, last, tail, collect' do
       describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] }} do
         it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] } }.should \

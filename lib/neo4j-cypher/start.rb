@@ -2,12 +2,12 @@ module Neo4j
   module Cypher
     class Start
       include Clause
-      include Referenceable
 
       attr_accessor :entities # TODO CHECK  if needed
 
       def initialize(clause_list)
         super(clause_list, :start, EvalContext)
+        #CallChain.print("New StartNode #{object_id}")
       end
 
       def initialize_entities(entities)

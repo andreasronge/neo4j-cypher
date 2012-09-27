@@ -4,7 +4,6 @@ module Neo4j
     # Represents an unbound node variable used in match statements
     class NodeVar
       include Clause
-      include Referenceable
 
       def initialize(clause_list, var_name = nil)
         super(clause_list, :node_var, EvalContext)

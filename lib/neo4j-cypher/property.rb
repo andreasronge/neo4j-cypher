@@ -10,8 +10,9 @@ module Neo4j
     #  n=node(2, 3, 4); n[:name].collect
     #  # same as START n0=node(2,3,4) RETURN collect(n0.property)
     class Property
-      include Referenceable
       include Clause
+
+      attr_accessor :prop_name
 
       def initialize(var, prop_name = nil)
         super(var.clause_list, :property, EvalContext)
@@ -19,6 +20,7 @@ module Neo4j
         @prop_name = prop_name
       end
 
+      # TODO check why needed
       def var_name
         @var.var_name
       end

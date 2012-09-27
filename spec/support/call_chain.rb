@@ -1,9 +1,9 @@
 class CallChain
-  def self.print(msg=nil, depth = 10)
+  def self.print(msg=nil, depth = 11)
     puts msg if msg
-    (1..depth).each do |depth|
-      p = parse_caller(caller(depth+2).first)
-      puts "  #{depth} - #{p[0]}:#{p[1]} - #{p[2]}"
+    (2..depth).each do |depth|
+      p = parse_caller(caller(depth+1).first)
+      puts "  #{depth - 1} - #{p[0]}:#{p[1]} - #{p[2]}"
     end
   end
 

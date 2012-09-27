@@ -1,7 +1,6 @@
 require 'neo4j-cypher/version'
 
 require 'neo4j-cypher/context'
-require 'neo4j-cypher/mixins'
 require 'neo4j-cypher/clause'
 require 'neo4j-cypher/clause_list'
 require 'neo4j-cypher/argument'

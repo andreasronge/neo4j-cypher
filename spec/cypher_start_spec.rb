@@ -265,7 +265,7 @@ describe "Neo4j::Cypher" do
 
     # the ! operator is only available in Ruby 1.9.x
     describe %# node(3).where{|n| !(n[:desc] =~ ".\d+")}# do
-      it { Proc.new { node(3).where{|n| !(n[:desc] =~ ".\d+")}}.should be_cypher(%q[START v1=node(3) WHERE (not(v1.desc =~ '.d+')) RETURN v1]) }
+      it { Proc.new { node(3).where{|n| !(n[:desc] =~ ".\d+")}}.should be_cypher(%q[START v1=node(3) WHERE not(v1.desc =~ '.d+') RETURN v1]) }
     end
 
     describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do

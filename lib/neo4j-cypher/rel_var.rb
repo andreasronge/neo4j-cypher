@@ -3,8 +3,6 @@ module Neo4j
 
     class RelVar
       include Clause
-      include ToPropString
-      include Referenceable
 
       def initialize(clause_list, expr, props = nil)
         super(clause_list, :rel_var, EvalContext)

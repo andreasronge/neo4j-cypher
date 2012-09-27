@@ -2,7 +2,6 @@ module Neo4j
   module Cypher
 
     class Argument
-      include Referenceable
       include Clause
 
       def initialize(clause_list, expr, var_name)
