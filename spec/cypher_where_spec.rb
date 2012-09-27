@@ -231,6 +231,11 @@ describe "Neo4j::Cypher" do
         it { Proc.new { node(4, 5, 6)[:age] <= 32 }.should be_cypher('START v1=node(4,5,6) WHERE v1.age <= 32 RETURN v1') }
       end
 
+      describe 'node(4, 5, 6).where{|n| (n[:age] == 32).not }' do
+        it { Proc.new { node(4, 5, 6).where{|n| (n[:age] == 32).not }}.should be_cypher('START v1=node(4,5,6) WHERE not(v1.age = 32) RETURN v1') }
+      end
+
+
       if RUBY_VERSION > "1.9.0"
         describe 'node(4,5,6)[:age] != 32' do
           it { Proc.new { node(4, 5, 6)[:age] != 32 }.should be_cypher('START v1=node(4,5,6) WHERE v1.age <> 32 RETURN v1') }

@@ -153,11 +153,7 @@ module Neo4j
 
       module Sortable
         def _return_item
-          if self.is_a?(Neo4j::Cypher::ReturnItem::EvalContext)
-            self
-          else
-            @return_item ||= ReturnItem.new(clause_list, self).eval_context
-          end
+          @return_item ||= ReturnItem.new(clause_list, self).eval_context
         end
 
         def asc(*props)

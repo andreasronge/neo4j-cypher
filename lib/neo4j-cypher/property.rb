@@ -91,17 +91,6 @@ module Neo4j
           self
         end
 
-        # required by the Predicate Methods Module
-        # @see PredicateMethods
-        # @private
-        def iterable
-          clause.return_value
-        end
-
-        def input
-          clause
-        end
-
         # @private
         def in?(values)
           clause.unary_operator("", :where, " IN [#{values.map { |x| %Q["#{x}"] }.join(',')}]")

@@ -13,10 +13,6 @@ module Neo4j
         @match_list = []
       end
 
-      def match_value
-        @from.match_value
-      end
-
       def new_match_node(from, to, dir)
         NodeMatchContext.new_first(self, from, to, dir)
         self
@@ -221,11 +217,6 @@ module Neo4j
             @rel_var = RelVar.new(clause_list, [rel])
           end
           self
-        end
-
-        def self.new_first(match_start, from, rel)
-          from_var = NodeVar.as_var(match_start.clause_list, from)
-          RelLeftMatchContext.new(match_start, from_var).set_rel(rel)
         end
 
         def -(to)

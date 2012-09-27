@@ -49,21 +49,12 @@ module Neo4j
         # since we handle it ourself in to_cypher method unless it needs to be declared (as a cypher start node/relationship)
         clause_list.delete(left_operand) if remove_operand?(left_operand)
         clause_list.delete(right_operand) if remove_operand?(right_operand)
-
-        #clause_list.delete(left_operand) unless declare_operand?(left_operand) || left_operand.is_a?(Neo4j::Cypher::MatchStart)
-        #clause_list.delete(right_operand) unless declare_operand?(right_operand)
-
         @neg = nil
       end
 
       def remove_operand?(operand)
         clause = operand.respond_to?(:clause) ? operand.clause : operand
         clause.kind_of?(Clause) && clause.clause_type == :where
-      end
-
-      def declare_operand?(operand)
-        clause = operand.respond_to?(:clause) ? operand.clause : operand
-        clause.kind_of?(Clause) && clause.clause_type == :start
       end
 
       def match_value
