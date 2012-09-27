@@ -35,7 +35,6 @@ module Neo4j
     class Operator
       attr_reader :left_operand, :right_operand, :op, :neg, :eval_context
       include Clause
-      include Referenceable
 
       def initialize(clause_list, left_operand, right_operand, op, clause_type = :where, post_fix = nil, &dsl)
         super(clause_list, clause_type, EvalContext)
@@ -48,19 +47,14 @@ module Neo4j
         @valid = true
 
         # since we handle it ourself in to_cypher method unless it needs to be declared (as a cypher start node/relationship)
-        clause_list.delete(left_operand) unless declare_operand?(left_operand)
-        clause_list.delete(right_operand) unless declare_operand?(right_operand)
-
+        clause_list.delete(left_operand) if remove_operand?(left_operand)
+        clause_list.delete(right_operand) if remove_operand?(right_operand)
         @neg = nil
       end
 
-      def declare_operand?(operand)
+      def remove_operand?(operand)
         clause = operand.respond_to?(:clause) ? operand.clause : operand
-        clause.kind_of?(Clause) && clause.clause_type == :start
-      end
-
-      def separator
-        " and "
+        clause.kind_of?(Clause) && clause.clause_type == :where
       end
 
       def match_value

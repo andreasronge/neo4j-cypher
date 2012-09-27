@@ -3,8 +3,6 @@ module Neo4j
 
     class RelVar
       include Clause
-      include ToPropString
-      include Referenceable
 
       def initialize(clause_list, expr, props = nil)
         super(clause_list, :rel_var, EvalContext)
@@ -42,17 +40,6 @@ module Neo4j
 
       def rel_type
         @match_value.include?(':') ? @match_value.split(':').last : @match_value.sub('?', '')
-      end
-
-      def self._rel_to_string(clause_list, rel_or_symbol)
-        case rel_or_symbol
-          when String, Symbol
-            RelVar.new(clause_list, rel_or_symbol).rel_type
-          when Neo4j::Cypher::RelVar::EvalContext
-            rel_or_symbol.clause.rel_type
-          else
-            raise "Unknown type of relationship, got #{rel_or_symbol.class}"
-        end
       end
 
       def referenced!

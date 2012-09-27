@@ -7,7 +7,8 @@ module Neo4j
 
       def initialize(variables = [])
         @variables = variables
-        @clause_list = []
+        @lists_of_clause_list = [[]]
+        @curr_clause_list = @lists_of_clause_list.first
         @insert_order = 0
       end
 
@@ -20,25 +21,32 @@ module Neo4j
       end
 
       def find(clause_type)
-        @clause_list.find { |c| c.clause_type == clause_type }
+        @curr_clause_list.find { |c| c.clause_type == clause_type }
       end
 
       def each
-        @clause_list.each { |c| yield c }
+        @curr_clause_list.each { |c| yield c }
       end
 
       def push
-        raise "Only support stack of depth 2" if @old_clause_list
-        @old_clause_list = @clause_list
-        @clause_list = []
+        @lists_of_clause_list << []
+        @curr_clause_list = @lists_of_clause_list.last
         self
       end
 
       def pop
-        @clause_list = @old_clause_list
-        @clause_list.sort!
-        @old_clause_list = nil
+        @lists_of_clause_list.pop
+        @curr_clause_list = @lists_of_clause_list.last
+        @curr_clause_list.sort!
         self
+      end
+
+      def return_clause
+        @curr_clause_list.find{|r| r.respond_to?(:return_items)}
+      end
+
+      def depth
+        @lists_of_clause_list.count
       end
 
       def insert(clause)
@@ -47,7 +55,7 @@ module Neo4j
         if Clause::ORDER.include?(ctype)
           # which list should we add the cluase to, the root or the sub list ?
           # ALl the start and return clauses should move to the clause_list
-          c = (@old_clause_list && (ctype == :start || ctype == :return)) ? @old_clause_list : @clause_list
+          c = (depth > 1 && (ctype == :start || ctype == :return)) ? @lists_of_clause_list.first : @curr_clause_list
           c << clause
           @insert_order += 1
           clause.insert_order = @insert_order
@@ -57,17 +65,16 @@ module Neo4j
       end
 
       def last
-        @clause_list.last
+        @curr_clause_list.last
       end
 
       def delete(clause_or_context)
         c = clause_or_context.respond_to?(:clause) ? clause_or_context.clause : clause_or_context
-        @clause_list.delete(c)
+        @curr_clause_list.delete(c)
       end
 
       #def debug
-      #  puts "ClauseList id: #{object_id}, vars: #{variables.size}"
-      #  @clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.class} id: #{c.object_id} order #{c.insert_order}" }
+      #  @curr_clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.to_cypher} - #{c.class} id: #{c.object_id} order #{c.insert_order}" }
       #end
 
       def create_variable(var)
@@ -96,7 +103,7 @@ module Neo4j
       end
 
       def prefix(list)
-        @old_clause_list && ![:set, :delete, :create].include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
+        (depth > 1) && ![:set, :delete, :create].include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
       end
 
     end

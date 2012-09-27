@@ -3,7 +3,6 @@ module Neo4j
 
     class MatchStart
       include Clause
-      include Referenceable
 
       attr_reader :match_list
       attr_accessor :algorithm
@@ -220,11 +219,6 @@ module Neo4j
           self
         end
 
-        def self.new_first(match_start, from, rel)
-          from_var = NodeVar.as_var(match_start.clause_list, from)
-          RelLeftMatchContext.new(match_start, from_var).set_rel(rel)
-        end
-
         def -(to)
           @match_start.match_list.delete(self) # since it is complete now
           RelRightMatchContext.new(@match_start, self, @rel_var, to, :both)
@@ -308,27 +302,41 @@ module Neo4j
         end
 
         def to_cypher_no_join
-          "(#{@from.var_name})#{DIR_OPERATORS[@dir]}(#{@to.var_name})"
+          x = @to.match_value
+          "(#{@from.match_value})#{DIR_OPERATORS[@dir]}(#{x})"
         end
 
         def to_cypher_join
-          "#{DIR_OPERATORS[@dir]}(#{@to.var_name})"
+          "#{DIR_OPERATORS[@dir]}(#{@to.match_value})"
         end
       end
 
       class Entities
         include Clause
+        attr_reader :input
 
         def initialize(clause_list, iterable, input)
           super(clause_list, :entities, EvalContext)
-          eval_context.iterable = iterable
-          eval_context.input = input.clause
+          @iterable = iterable
+          @input = input.clause
+        end
+
+        def referenced!
+          @input.referenced!
+        end
+
+        def return_value
+          "#{@iterable}(#{@input.var_name})"
         end
 
         class EvalContext
           include Context
           include PredicateMethods
-          attr_accessor :input, :iterable
+          include Returnable
+
+          include Variable
+          include Matchable
+          include Aggregate
         end
       end
 

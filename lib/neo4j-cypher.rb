@@ -1,9 +1,11 @@
 require 'neo4j-cypher/version'
 
 require 'neo4j-cypher/context'
-require 'neo4j-cypher/mixins'
 require 'neo4j-cypher/clause'
 require 'neo4j-cypher/clause_list'
+require 'neo4j-cypher/abstract_filter'
+require 'neo4j-cypher/collection'
+require 'neo4j-cypher/foreach'
 require 'neo4j-cypher/argument'
 require 'neo4j-cypher/root'
 require 'neo4j-cypher/start'

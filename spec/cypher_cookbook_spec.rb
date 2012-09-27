@@ -34,7 +34,7 @@ describe "Cypher Cookbook Examples" do
     it 'can be written in one line' do
       Proc.new do
         lookup('node_auto_index', "name", "User1") > ':hasRoleInGroup' > node(:hyperEdge).match { |n| n > ':hasRole' > node(:role).ret { |r| r[:name] } } > ':hasGroup' > node(:group).where { |g| g[:name] == 'Group2' }
-      end.should be_cypher('START v1=node:node_auto_index(name="User1") MATCH (v1)-[:hasRoleInGroup]->(hyperEdge)-[:hasGroup]->(group),(hyperEdge)-[:hasRole]->(role) WHERE (group.name = "Group2") RETURN role.name')
+      end.should be_cypher('START v1=node:node_auto_index(name="User1") MATCH (v1)-[:hasRoleInGroup]->(hyperEdge)-[:hasGroup]->(group),(hyperEdge)-[:hasRole]->(role) WHERE group.name = "Group2" RETURN role.name')
 
     end
   end

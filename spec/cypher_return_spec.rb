@@ -44,6 +44,18 @@ describe "Neo4j::Cypher" do
 
     end
 
+    describe 'nodes' do
+      describe '(node(3) >> :b >> node(2)).nodes' do
+        it { Proc.new{ (node(3) >> :b >> node(2)).nodes}.should be_cypher("START v1=node(3),v2=node(2) MATCH v3 = (v1)-->(b)-->(v2) RETURN nodes(v3)")}
+      end
+    end
+
+    describe 'rels' do
+      describe '(node(3) >> :b >> node(2)).rels' do
+        it { Proc.new{ (node(3) >> :b >> node(2)).rels}.should be_cypher("START v1=node(3),v2=node(2) MATCH v3 = (v1)-->(b)-->(v2) RETURN relationships(v3)")}
+      end
+    end
+
     describe 'extract, filter, coalesce, head, last, tail, collect' do
       describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] }} do
         it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract { |x| x[:age] } }.should \
@@ -134,10 +146,18 @@ describe "Neo4j::Cypher" do
         it { Proc.new { n=node(3, 1, 2); ret(n).asc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name}) }
       end
 
-      # TODO
-      # ret(n.asc(:name))
-      # n.asc(:name)
-      # node(3,1,2).asc(:name)
+      describe "node(3, 1, 2).skip(2)" do
+        it { Proc.new { node(3, 1, 2).skip(2)}.should be_cypher(%{START v1=node(3,1,2) RETURN v1 SKIP 2}) }
+      end
+
+      describe "node(3, 1, 2).skip(2).limit(3)" do
+        it { Proc.new { node(3, 1, 2).skip(2).limit(3)}.should be_cypher(%{START v1=node(3,1,2) RETURN v1 SKIP 2 LIMIT 3}) }
+      end
+
+      describe "node(3, 1, 2).limit(2)" do
+        it { Proc.new { node(3, 1, 2).limit(2)}.should be_cypher(%{START v1=node(3,1,2) RETURN v1 LIMIT 2}) }
+      end
+
       describe %{       n=node(3,1,2); ret(n).desc(n[:name])} do
         it { Proc.new { n=node(3, 1, 2); ret(n).desc(n[:name]) }.should be_cypher(%{START v1=node(3,1,2) RETURN v1 ORDER BY v1.name DESC}) }
       end

@@ -332,4 +332,14 @@ describe "Neo4j::Cypher" do
     end
   end
 
+  describe 'length' do
+    describe "ret(:a, :b, :c, (node(3).as(:a) > ':KNOWS*0..1' > :b).length, (node(:b) > ':BLOCKS*0..1' > :c).length)" do
+      it { Proc.new { ret(:a, :b, :c, (node(3).as(:a) > ':KNOWS*0..1' > :b).length, (node(:b) > ':BLOCKS*0..1' > :c).length) }.should \
+        be_cypher("START a=node(3) MATCH v1 = (a)-[:KNOWS*0..1]->(b),v2 = (b)-[:BLOCKS*0..1]->(c) RETURN a,b,c,length(v1),length(v2)")}
+
+    end
+
+
+  end
+
 end

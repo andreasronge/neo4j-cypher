@@ -17,9 +17,7 @@ module Neo4j
 
 
     class Create
-      include ToPropString
       include Clause
-      include Referenceable
 
       def initialize(clause_list, props)
         super(clause_list, :create, EvalContext)
@@ -59,7 +57,6 @@ module Neo4j
 
     class CreatePath
       include Clause
-      include Referenceable
 
       attr_reader :arg_list
 

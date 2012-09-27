@@ -99,33 +99,19 @@ module Neo4j
 
       module PredicateMethods
         def all?(&block)
-          self.respond_to?(:iterable)
-          Predicate.new(clause_list, :op => 'all', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block).eval_context
-        end
-
-        def extract(&block)
-          Predicate.new(clause_list, :op => 'extract', :clause => :return_item, :input => input, :iterable => iterable, :predicate_block => block).eval_context
-        end
-
-        def filter(&block)
-          Predicate.new(clause_list, :op => 'filter', :clause => :return_item, :input => input, :iterable => iterable, :predicate_block => block).eval_context
+          Predicate.new(clause_list, 'all', self, &block).eval_context
         end
 
         def any?(&block)
-          Predicate.new(clause_list, :op => 'any', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block).eval_context
+          Predicate.new(clause_list, 'any', self, &block).eval_context
         end
 
         def none?(&block)
-          Predicate.new(clause_list, :op => 'none', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block).eval_context
+          Predicate.new(clause_list, 'none', self, &block).eval_context
         end
 
         def single?(&block)
-          Predicate.new(clause_list, :op => 'single', :clause => :where, :input => input, :iterable => iterable, :predicate_block => block).eval_context
-        end
-
-        def foreach(&block)
-          Predicate.new(clause_list, :op => '', :clause => :foreach, :input => input, :iterable => iterable, :predicate_block => block, :separator => ' FOREACH ').eval_context
-          input.eval_context
+          Predicate.new(clause_list, 'single', self, &block).eval_context
         end
       end
 
@@ -143,15 +129,31 @@ module Neo4j
           (self.is_a?(RootClause::EvalContext)) ? r : self
         end
 
+        # To return a single property, or the value of a function from a collection of nodes or relationships, you can use EXTRACT.
+        # It will go through a collection, run an expression on every element, and return the results in an collection with these values.
+        # It works like the map method in functional languages such as Lisp and Scala.
+        # Will generate:
+        #   EXTRACT( identifier in collection : expression )
+        def extract(&block)
+          Collection.new(clause_list, 'extract', self, &block).eval_context
+        end
+
+        # Returns all the elements in a collection that comply to a predicate.
+        # Will generate
+        #  FILTER(identifier in collection : predicate)
+        def filter(&block)
+          Collection.new(clause_list, 'filter', self, &block).eval_context
+        end
+
+        def foreach(&block)
+          Foreach.new(clause_list, self, &block).eval_context
+        end
+
       end
 
       module Sortable
         def _return_item
-          if self.is_a?(Neo4j::Cypher::ReturnItem::EvalContext)
-            self
-          else
-            @return_item ||= ReturnItem.new(clause_list, self).eval_context
-          end
+          @return_item ||= ReturnItem.new(clause_list, self).eval_context
         end
 
         def asc(*props)
@@ -265,14 +267,12 @@ module Neo4j
 
       module Variable
         def where(&block)
-          x = RootClause::EvalContext.new(self).instance_exec(self, &block)
-          Operator.new(clause_list, x.clause, nil, "").unary!
+          Where.new(clause_list, self, &block)
           self
         end
 
         def where_not(&block)
-          x = RootClause::EvalContext.new(self).instance_exec(self, &block)
-          Operator.new(clause_list, x.clause, nil, "not").unary!
+          Where.new(clause_list, self, &block).neg!
           self
         end
 
