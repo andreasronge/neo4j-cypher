@@ -1,4 +1,4 @@
-== neo4j-cypher {<img src="https://secure.travis-ci.org/andreasronge/neo4j-cypher.png" />}[http://travis-ci.org/andreasronge/neo4j-cypher]
+== neo4j-cypher {<img src="https://secure.travis-ci.org/andreasronge/neo4j-cypher.png" />}[http://travis-ci.org/andreasronge/neo4j-cypher] {<img src="https://codeclimate.com/badge.png"/>}[https://codeclimate.com/github/andreasronge/neo4j-cypher]
 
 A Ruby DSL for the Neo4j Cypher query language for both MRI and JRuby.
 The JRuby neo4j-core gem's cypher dsl has been moved to this gem.
@@ -7,7 +7,7 @@ The JRuby neo4j-core gem's cypher dsl has been moved to this gem.
 
 See {Neo4j Wiki Cypher}[https://github.com/andreasronge/neo4j/wiki/Neo4j::Core-Cypher]
 
-See the rspecs ! (> 99% test coverage)
+See the rspecs ! (100% test coverage)
 
 
 === Random Examples
