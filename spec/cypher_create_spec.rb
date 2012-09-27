@@ -202,7 +202,7 @@ describe "Neo4j::Cypher" do
       describe "(node(2) > rel > node(1)).nodes.foreach {|n| n[:marked] = true}" do
         it do
           Proc.new { (node(2) > rel > node(1)).nodes.foreach {|n| n[:marked] = true}}.should \
-            be_cypher "START v2=node(2),v3=node(1) MATCH v1 = (v2)-[?]->(v3) FOREACH (x in nodes(v1) : SET x.marked = true) RETURN v1"
+            be_cypher "START v2=node(2),v3=node(1) MATCH v1 = (v2)-[?]->(v3) FOREACH (x in nodes(v1) : SET x.marked = true) RETURN nodes(v1)"
         end
 
       end

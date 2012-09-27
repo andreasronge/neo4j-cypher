@@ -14,7 +14,6 @@ module Neo4j
       end
 
       def match_value
-        puts "MATCH VALUE for MatchStart"
         @from.match_value
       end
 
@@ -313,7 +312,6 @@ module Neo4j
 
         def to_cypher_no_join
           x = @to.match_value
-          puts "to_cypher_no_join #{@to.class}/#{@to.object_id}, = #{x}"
           "(#{@from.match_value})#{DIR_OPERATORS[@dir]}(#{x})"
         end
 

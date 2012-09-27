@@ -1,14 +1,14 @@
 module Neo4j
   module Cypher
-    class Predicate
+    class Foreach
       include Clause
 
-      def initialize(clause_list, method_name, input_context, &block)
-        super(clause_list, :where, input_context)
+      def initialize(clause_list, input_context, &block)
+        super(clause_list, :foreach, input_context)
         # Input can either be a property array or a node/relationship collection
         input = input_context.clause
-
-        @cypher = method_name
+        clause_list.delete(input)
+        @cypher = ""
 
         var = NodeVar.as_var(clause_list, 'x')
 
@@ -19,6 +19,7 @@ module Neo4j
           input.expr = :x
         else
           filter_input = var
+          input.referenced!
           @cypher << "(x in #{input.return_value}"
         end
         clause_list.push
@@ -26,8 +27,7 @@ module Neo4j
         x = RootClause::EvalContext.new(self).instance_exec(filter_input.eval_context, &block)
         filter_expr = clause_list.to_cypher
 
-        @cypher << " WHERE #{filter_expr})"
-        # WHERE all(x in nodes(v1) WHERE x.age > 30)
+        @cypher << " : #{filter_expr})"
         clause_list.pop
       end
 
@@ -35,6 +35,6 @@ module Neo4j
         @cypher
       end
     end
-
   end
+
 end

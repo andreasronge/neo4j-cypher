@@ -41,14 +41,16 @@ module Neo4j
         self
       end
 
+      def return_clause
+        @curr_clause_list.find{|r| r.respond_to?(:return_items)}
+      end
+
       def depth
         @lists_of_clause_list.count
       end
 
       def insert(clause)
         ctype = clause.clause_type
-
-#        puts "INSERT #{clause.class}/#{clause.object_id}, #{ctype}, @insert_order #{@insert_order}"
 
         if Clause::ORDER.include?(ctype)
           # which list should we add the cluase to, the root or the sub list ?
@@ -68,16 +70,12 @@ module Neo4j
 
       def delete(clause_or_context)
         c = clause_or_context.respond_to?(:clause) ? clause_or_context.clause : clause_or_context
-        #puts "DELETE #{clause_or_context.class}"
- #       CallChain.print "WHY #{c.object_id} ref #{c.referenced?}" if c.class == Neo4j::Cypher::MatchStart
-
         @curr_clause_list.delete(c)
       end
 
-      def debug
-        puts "ClauseList id: #{object_id}, vars: #{variables.size}"
-        @curr_clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.to_cypher} - #{c.class} id: #{c.object_id} order #{c.insert_order}" }
-      end
+      #def debug
+      #  @curr_clause_list.each_with_index { |c, i| puts "  #{i} #{c.clause_type.inspect}, #{c.to_cypher} - #{c.class} id: #{c.object_id} order #{c.insert_order}" }
+      #end
 
       def create_variable(var)
         raise "Already included #{var}" if @variables.include?(var)
@@ -105,7 +103,7 @@ module Neo4j
       end
 
       def prefix(list)
-        @old_clause_list && ![:set, :delete, :create].include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
+        (depth > 1) && ![:set, :delete, :create].include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
       end
 
     end

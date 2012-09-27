@@ -58,17 +58,12 @@ module Neo4j
 
       def remove_operand?(operand)
         clause = operand.respond_to?(:clause) ? operand.clause : operand
-        puts "REMOVE #{operand.class}, #{clause.kind_of?(Clause) && clause.clause_type} ?"
         clause.kind_of?(Clause) && clause.clause_type == :where
       end
 
       def declare_operand?(operand)
         clause = operand.respond_to?(:clause) ? operand.clause : operand
         clause.kind_of?(Clause) && clause.clause_type == :start
-      end
-
-      def separator
-        " and "
       end
 
       def match_value

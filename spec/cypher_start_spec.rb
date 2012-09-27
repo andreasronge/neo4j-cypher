@@ -253,15 +253,8 @@ describe "Neo4j::Cypher" do
   end
 
 
-  if RUBY_VERSION > "1.9.0"
 
-    describe "a=node(5);b=node(7);x=node; a > ':friends' > x; !(x > ':friends' > node > ':work' > b); x" do
-      it do
-        Proc.new do
-          a=node(5); b=node(7); x=node; a > ':friends' > x; !(x > ':friends' > node > ':work' > b); x
-        end.should be_cypher("START v1=node(5),v2=node(7) MATCH (v1)-[:friends]->(v3) WHERE not((v3)-[:friends]->(v4)-[:work]->(v2)) RETURN v3")
-      end
-    end
+  if RUBY_VERSION > "1.9.0"
 
     # the ! operator is only available in Ruby 1.9.x
     describe %# node(3).where{|n| !(n[:desc] =~ ".\d+")}# do
@@ -269,7 +262,7 @@ describe "Neo4j::Cypher" do
     end
 
     describe %{n=node(3).as(:n); where((n[:desc] != "hej")); ret n} do
-      it { Proc.new { n=node(3).as(:n); where((n[:desc] != "hej")); ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc <> "hej" RETURN n]) }
+      it { Proc.new { n=node(3).as(:n); where{(n[:desc] != "hej")}; ret n }.should be_cypher(%q[START n=node(3) WHERE n.desc <> "hej" RETURN n]) }
     end
 
     describe %{a=node(1).as(:a);b=node(3,2); r=rel('r?'); a < r < b; !r.exist? ; b} do

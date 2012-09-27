@@ -33,7 +33,7 @@ module Neo4j
       end
 
       def return_names
-        ret = clause_list.clause_list.find{|r| r.respond_to?(:return_items)}
+        ret = clause_list.return_clause
         ret ? ret.return_items.map { |ri| (ri.alias_name || ri.return_value).to_sym } : []
       end
 
@@ -60,8 +60,13 @@ module Neo4j
           self
         end
 
-        def where(w=nil)
-          Where.new(clause_list, w) if w.is_a?(String)
+        def where(w=nil, &block)
+          Where.new(clause_list, self, w, &block)
+          self
+        end
+
+        def where_not(w=nil, &block)
+          Where.new(clause_list, self, w, &block).neg!
           self
         end
 

@@ -38,7 +38,7 @@ module Neo4j
       end
 
       def separator
-        ','
+        clause_type == :where ? ' and ' : ','
       end
 
       def match_value=(mv)

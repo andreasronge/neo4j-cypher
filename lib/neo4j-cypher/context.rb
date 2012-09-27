@@ -135,19 +135,18 @@ module Neo4j
         # Will generate:
         #   EXTRACT( identifier in collection : expression )
         def extract(&block)
-          Predicate.new(clause_list, :op => 'extract', :clause => :return_item, :input => input, :iterable => iterable, :predicate_block => block).eval_context
+          Collection.new(clause_list, 'extract', self, &block).eval_context
         end
 
         # Returns all the elements in a collection that comply to a predicate.
         # Will generate
         #  FILTER(identifier in collection : predicate)
         def filter(&block)
-          Predicate.new(clause_list, :op => 'filter', :clause => :return_item, :input => input, :iterable => iterable, :predicate_block => block).eval_context
+          Collection.new(clause_list, 'filter', self, &block).eval_context
         end
 
         def foreach(&block)
-          Predicate.new(clause_list, :op => '', :clause => :foreach, :input => input, :iterable => iterable, :predicate_block => block, :separator => ' FOREACH ')
-          input.eval_context
+          Foreach.new(clause_list, self, &block).eval_context
         end
 
       end
@@ -272,22 +271,12 @@ module Neo4j
 
       module Variable
         def where(&block)
-          puts "WHERE START ___________________________"
-          clause_list.push
-          x = RootClause::EvalContext.new(self).instance_exec(self, &block)
-          expr = clause_list.to_cypher
-          puts "WHERE STOP ____________________________ #{x.class}, this #{clause.class}, expr #{expr}"
-          clause_list.pop
-          Where.new(clause_list, expr)
-          #Operator.new(clause_list, x.clause, nil, "").unary!
+          Where.new(clause_list, self, &block)
           self
         end
 
         def where_not(&block)
-          clause_list.push
-          x = RootClause::EvalContext.new(self).instance_exec(self, &block)
-          clause_list.pop
-          Operator.new(clause_list, x.clause, nil, "not").unary!
+          Where.new(clause_list, self, &block).neg!
           self
         end
 

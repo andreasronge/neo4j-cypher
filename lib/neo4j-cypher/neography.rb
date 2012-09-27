@@ -16,7 +16,6 @@ module Neography
   class Rest
     def execute_cypher(params, &dsl)
       q = Neo4j::Cypher.query(params, &dsl).to_s
-      puts "GOT QUERY #{q}"
       execute_query(q)
     end
   end
