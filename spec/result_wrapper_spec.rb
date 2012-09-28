@@ -24,13 +24,13 @@ describe Neo4j::Cypher::ResultWrapper do
     end
 
     it 'symbolize the keys' do
-      subject.first.keys.should == [:key1, :key2]
-      subject.to_a[1].keys.should == [:key1, :key2]
+      subject.first.keys.should =~ [:key1, :key2]
+      subject.to_a[1].keys.should =~ [:key1, :key2]
     end
 
     it 'leaves the values as it is' do
-      subject.first.values.should == %w[value1 value2]
-      subject.to_a[1].values.should == %w[value3 value4]
+      subject.first.values.should =~ %w[value1 value2]
+      subject.to_a[1].values.should =~ %w[value3 value4]
     end
 
   end
