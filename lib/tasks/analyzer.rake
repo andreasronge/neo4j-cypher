@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'term/ansicolor'
+#require 'term/ansicolor'
 require 'reek/rake/task'
 
 # Stolen rake task from https://github.com/andywenk/ruby_code_analyzer_rake_tasks/blob/master/lib/tasks/analyzer.rake

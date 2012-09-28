@@ -2,7 +2,7 @@ require 'rake'
 require "bundler/gem_tasks"
 require 'rspec/core/rake_task'
 
-Dir.glob('lib/tasks/*.rake').each { | rake_file | import rake_file }
+#Dir.glob('lib/tasks/*.rake').each { | rake_file | import rake_file }  unless ENV['TRAVIS'] == 'true'
 
 desc "Run all specs"
 RSpec::Core::RakeTask.new("spec") do |t|
