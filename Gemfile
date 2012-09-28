@@ -5,6 +5,10 @@ gemspec
 group 'development' do
   gem 'pry'
   gem 'simplecov'
+  gem "term-ansicolor"
+  gem 'flog'
+  gem 'flay'
+  gem 'reek'
 end
 
 group 'test' do
