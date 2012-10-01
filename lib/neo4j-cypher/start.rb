@@ -3,15 +3,18 @@ module Neo4j
     class Start
       include Clause
 
-      attr_accessor :entities # TODO CHECK  if needed
-
-      def initialize(clause_list)
+      def initialize(clause_list, rvalue)
         super(clause_list, :start, EvalContext)
-        #CallChain.print("New StartNode #{object_id}")
+        @rvalue = rvalue
       end
 
-      def initialize_entities(entities)
-        @entities = entities.map { |n| n.respond_to?(:neo_id) ? n.neo_id : n }
+      def entity_list(entity_type, entities)
+        list = entities.map { |n| n.respond_to?(:neo_id) ? n.neo_id : n }.join(',')
+        "#{entity_type}(#{list})"
+      end
+
+      def to_cypher
+        "#{var_name}=#{@rvalue}"
       end
 
       class EvalContext
@@ -30,38 +33,29 @@ module Neo4j
     class StartNode < Start
 
       def initialize(clause_list, nodes)
-        super(clause_list)
-        initialize_entities(nodes)
+        super(clause_list, entity_list('node', nodes))
       end
-
-      def to_cypher
-        "#{var_name}=node(#{entities.join(',')})"
-      end
-
     end
 
 
     # Can be created from a <tt>rel</tt> dsl method.
     class StartRel < Start
       def initialize(clause_list, rels)
-        super(clause_list)
-        initialize_entities(rels)
-      end
-
-      def to_cypher
-        "#{var_name}=relationship(#{entities.join(',')})"
+        super(clause_list, entity_list('relationship', rels))
       end
     end
 
     class LuceneQuery < Start
       def initialize(clause_list, query, type)
-        super(clause_list)
-        @query = query
-        @type = type
+        super(clause_list, "#{type}:#{query}")
+      end
+
+      def self._lookup_params(index_class, key, value)
+        %Q[#{_index_name_for_key(index_class, key)}(#{key}="#{value}")]
       end
 
       def self.lookup_node_by_class(clause_list, index_class, key, value)
-        LuceneQuery.new(clause_list, %Q[#{_index_name_for_key(index_class, key)}(#{key}="#{value}")], 'node')
+        LuceneQuery.new(clause_list, _lookup_params(index_class, key, value), 'node')
       end
 
       def self.query_node_by_class(clause_list, index_class, query, index_type)
@@ -69,7 +63,7 @@ module Neo4j
       end
 
       def self.lookup_rel_by_class(clause_list, index_class, key, value)
-        LuceneQuery.new(clause_list, %Q[#{_index_name_for_key(index_class, key)}(#{key}="#{value}")], 'relationship')
+        LuceneQuery.new(clause_list, _lookup_params(index_class, key, value), 'relationship')
       end
 
       def self.query_rel_by_class(clause_list, index_class, query, index_type)
@@ -88,10 +82,6 @@ module Neo4j
         else
           index_class.to_s
         end
-      end
-
-      def to_cypher
-        "#{var_name}=#{@type}:#{@query}"
       end
     end
 

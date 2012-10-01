@@ -103,9 +103,17 @@ module Neo4j
       end
 
       def prefix(list)
-        (depth > 1) && ![:set, :delete, :create].include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
+        (depth > 1) && !prefix_for_depth_2.include?(list.first.clause_type) ? '' : "#{list.first.prefix} "
       end
 
+      def prefix_for_depth_2
+        if include?(:match) && include?(:where)
+          [:set, :delete, :create, :where]
+        else
+          [:set, :delete, :create]
+        end
+
+      end
     end
   end
 

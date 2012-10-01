@@ -1,4 +1,5 @@
-== 1.0.0.rc3
+  Support for Ruby :& operator
+  Refactorings and minor improvements
 
 == 1.0.0.rc2 / 2012-09-21
   Made it work with neo4j-core, neo4j-wrapper and the neo4j gems

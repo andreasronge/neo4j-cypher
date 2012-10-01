@@ -103,7 +103,18 @@ describe "Neo4j::Cypher" do
             node(2) > ':KNOWS' > node(:knows); with_match(node(:knows)) { |n| n - ':LOVES' - node(3).ret }
           end.should be_cypher("START v2=node(2),v1=node(3) MATCH (v2)-[:KNOWS]->(knows) WITH knows MATCH (knows)-[:LOVES]-(v1) RETURN v1")
         end
-    end
+      end
+
+      describe "...;with_match(node(:c1), p.length.max) { |c1, l| c1 > ':merged_into*1..' > node(:b); p.length == l }" do
+        it do
+         Proc.new do
+            match { node(1) > :merged_into > node(:c1) }
+            p = match{node(:c1) > ':merged_into*1..' > node(:b)}
+            with_match(node(:c1), p.length.max) { |c1, l| c1 > ':merged_into*1..' > node(:b); p.length == l }
+            ret p.nodes.extract(&:cluster_size)
+          end.should be_cypher("START v3=node(1) MATCH (v3)-[:`merged_into`]->(c1),v1 = (c1)-[:merged_into*1..]->(b) WITH c1,max(length(v1)) as v2 MATCH (c1)-[:merged_into*1..]->(b) WHERE length(v1) = v2 RETURN extract(x in nodes(v1) : x.cluster_size)")
+        end
+      end
 
       describe "COMPLEX" do
         it do

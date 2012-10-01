@@ -186,8 +186,8 @@ describe "Neo4j::Cypher" do
 
 
       describe "(node(1)>>node).where{|p| p.nodes.single?{|n| n[:name] == 'Morpheus'}}.where{|path| path.nodes.all? { |x| x[:age] > 30 }}" do
-        it {pending "TODO "; Proc.new{ (node(1)>>node).where{|p| p.nodes.single?{|n| (n[:name] == 'Morpheus') &  p.nodes.all? { |x| x[:age] > 30 }}} }.should \
-          be_cypher('START v1=node(1) MATCH v3 = (v1)-->(v2) WHERE (single(x in nodes(v3) WHERE (x.name = "Morpheus") and all(x in nodes(v3) WHERE x.age > 30))) RETURN v3')}
+        it { Proc.new{ (node(1)>>node).where{|p| p.nodes.single?{|n| (n[:name] == 'Morpheus')}}.where{|p| p.nodes.all? { |x| x[:age] > 30 }}}.should \
+          be_cypher('START v2=node(1) MATCH v1 = (v2)-->(v3) WHERE single(x in nodes(v1) WHERE x.name = "Morpheus") and all(x in nodes(v1) WHERE x.age > 30) RETURN v1')}
       end
 
       describe "(node(1)>>node.where{|n| n[:age] == 42}).nodes.single?{|n| n[:name] == 'Morpheus'}" do

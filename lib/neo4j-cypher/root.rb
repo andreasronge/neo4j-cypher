@@ -46,12 +46,10 @@ module Neo4j
         # @return self
         def match(*, &match_dsl)
           instance_eval(&match_dsl) if match_dsl
-          self
         end
 
         def match_not(&match_dsl)
           instance_eval(&match_dsl).not
-          self
         end
 
         # Does nothing, just for making the DSL easier to read (maybe)
@@ -166,13 +164,16 @@ module Neo4j
         end
 
         def nodes(*args)
-          s = args.map { |x| x.clause.referenced!; x.clause.var_name }.join(", ")
-          ReturnItem.new(clause_list, "nodes(#{s})").eval_context
+          _entities(args, 'nodes')
         end
 
         def rels(*args)
-          s = args.map { |x| x.clause.referenced!; x.clause.var_name }.join(", ")
-          ReturnItem.new(clause_list, "relationships(#{s})").eval_context
+          _entities(args, 'relationships')
+        end
+
+        def _entities(arg_list, entity_type)
+          s = arg_list.map { |x| x.clause.referenced!; x.clause.var_name }.join(", ")
+          ReturnItem.new(clause_list, "#{entity_type}(#{s})").eval_context
         end
 
         def create_path(*args, &block)

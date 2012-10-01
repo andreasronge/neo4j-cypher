@@ -12,12 +12,10 @@ module Neo4j
 
         @args = create_clause_args_for(args)
         @arg_list = @args.map { |a| a.return_value }.join(',')
-        @where_or_match = where_or_match
         arg_exec = @args.map(&:eval_context)
 
         RootClause::EvalContext.new(self).instance_exec(*arg_exec, &cypher_dsl)
-
-        @body = "#{@where_or_match.to_s.upcase} #{clause_list.to_cypher}"
+        @body = "#{where_or_match.to_s.upcase} #{clause_list.to_cypher}"
         clause_list.pop
       end
 

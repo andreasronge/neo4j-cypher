@@ -62,9 +62,28 @@ describe "Neo4j::Cypher" do
       be_cypher(%{START v2=node(3),v3=node(4),v4=node(1) MATCH v1 = (v2)-->(v3)-->(v4) RETURN extract(x in nodes(v1) : x.age)}) }
       end
 
+      describe %{       a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract(&:age)} do
+        it { Proc.new { a=node(3); b=node(4); c=node(1); p=a>>b>>c; p.nodes.extract(&:age) }.should \
+         be_cypher(%{START v2=node(3),v3=node(4),v4=node(1) MATCH v1 = (v2)-->(v3)-->(v4) RETURN extract(x in nodes(v1) : x.age)}) }
+      end
+
       describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x.length == 3}} do
         it { Proc.new { a=node(2); ret a[:array], a[:array].filter { |x| x.length == 3 } }.should be_cypher(%{START v1=node(2) RETURN v1.array,filter(x in v1.array : length(x) = 3)}) }
-        it {Proc.new{ node(3)[:array].filter.length == 3}}
+      end
+
+
+      describe "Using properties on properties is not allowed" do
+        it do
+          Proc.new do
+            Neo4j::Cypher.query do
+              node(2)[:array].filter { |n| n.kalle = 'is not allowed' }
+            end.to_s
+          end.should raise_error
+        end
+      end
+
+      describe "(node(2) >> :x).nodes.filter{|x| x.given_name == 'kalle'}" do
+        it { Proc.new { (node(2) >> :x).nodes.filter{|x| x.given_name == 'kalle'}}.should be_cypher('START v2=node(2) MATCH v1 = (v2)-->(x) RETURN filter(x in nodes(v1) : x.given_name = "kalle")')}
       end
 
       describe %{       a=node(2); ret a[:array], a[:array].filter{|x| x == "hej"}} do

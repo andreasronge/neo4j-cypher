@@ -34,9 +34,30 @@ module Neo4j
         input.is_a?(Neo4j::Cypher::Property) ? input.expr : input.return_value
       end
 
+      # Used for the Ruby &: method shortcut
+      class FilterProp
+        def initialize(obj)
+          @obj = obj
+        end
+
+        def method_missing(m)
+          @obj[m.to_sym]
+        end
+      end
+
       def filter_exec(arg, &block)
         clause_list.push
-        ret = RootClause::EvalContext.new(self).instance_exec(arg, &block)
+        begin
+          ret = RootClause::EvalContext.new(self).instance_exec(arg, &block)
+        rescue NoMethodError
+          if arg.kind_of?(Neo4j::Cypher::Context::Variable)
+          # Try again, maybe we are using the Ruby &: method shortcut
+            ret = FilterProp.new(arg).instance_eval(&block)
+          else
+            raise
+          end
+        end
+
         filter = clause_list.empty? ? ret.clause.to_cypher : clause_list.to_cypher
         clause_list.pop
         filter
