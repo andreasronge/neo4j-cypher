@@ -49,6 +49,10 @@ describe "Neo4j::Cypher" do
         it { Proc.new { node(3) <=> 'foo'; :foo }.should be_cypher("START v1=node(3) MATCH (v1)--(foo) RETURN foo") }
       end
 
+      describe "node(1) <=> node(:other_person) > node " do
+        it { Proc.new { (node(1).as(:x) <=> node(:other_person)) >> node(:y) }.should be_cypher("START x=node(1) MATCH v1 = (x)--(other_person)-->(y) RETURN v1")}
+      end
+
     end
 
     describe "both" do

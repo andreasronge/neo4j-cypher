@@ -13,11 +13,8 @@ The JRuby neo4j-core gem's cypher dsl has been moved to this gem.
 
 Why should I write my queries using the neo4j-cypher DSL instead of using original cypher syntax ?
 
-*My Answer* Better readablity for (ruby) programmers, which means easier to understand and write queries.
-
-=== Is the neo4j-cypher DSL more readable ?
-
-For example: Find my friends I got 1994 using the original cypher language:
+Let's look at a simple example using the cypher query language without the DSL.
+For example: Find my friends I got 1994
 
   START me=node(1) 
   MATCH (me)-[friend_rel:`friends`]->(friends) 
@@ -25,112 +22,28 @@ For example: Find my friends I got 1994 using the original cypher language:
   RETURN friends
 
 Instead of relying on a strict order of the clauses (+START+, +MATCH+, +WHERE+ ...)
-and having to use variables (me and friends) you can write it like this:
+and having to use variables (me and friends) you can write the same query using the DSL like this:
 
   node(1).outgoing(rel(:friends).where{|r| r[:since] == 1994})
-
 
 This is more or less plain english (for me), navigate from node(1) outgoing relationships friends where friends since property is equal 1994.
 Remember just like ruby, the last value evaluated is the return value which means it will return your friend.
 
-Another way if you want to write it in many lines and using Ruby variables:
+Another example: Return the age property of all the nodes between node 1 and node 3. 
 
-  me = node(1)
-  friend_rel = rel(:friends)
-  friend = node
-  match { me > friend_rel > friend }
-  where { friend_rel[:since] == 1994 }
-  ret friend
+  (node(1) >> node >> node(3)).nodes.extract(&:age)
 
-Or using +>+ operator and flagging what to return with the +ret+ method.
+Notice the cypher extract function works like the standard ruby map method.
+The query above will generate the following cypher string:
 
-  node(1) > (rel(:friends)[:since] == 1994) > node.ret
+  START v2=node(3),v3=node(1) 
+  MATCH v1 = (v2)-->(v4)-->(v3) 
+  RETURN extract(x in nodes(v1) : x.age)
 
-The Ruby DSL gives you the control how best to express queries using Ruby syntax.
+So, the answer why you should use it is simply that it might improve the readability of the code for (ruby) programmers and
+make it more fun to write queries.
 
-=== Random Examples
-
-Notice the last value returned is the return value (if possible).
-Matching relationships can be done with operators: <,>, -, and <=> or with the both, incoming and outgoing methods.
-
-"START v1=node(3) MATCH v2 = (v1)-[:+r+]->(x) RETURN v2"
-
-  Neo4j::Cypher.query do
-    node(3) > :r > :x
-  end
-
-
-"START v2=node(1) MATCH (v2)-[v1:+knows+]->(other) WHERE v1.since > 1994 and other.name = "foo" RETURN other"
-
-  Neo4j::Cypher.query do
-    node(1) > (rel(:knows)[:since] > 1994) > (node(:other)[:name] == 'foo'); :other
-  end
-
-
-"START v2=node(1) MATCH (v2)-[v1:+friends+]->(v3) WHERE (v1.since = 1994) RETURN v3"
-
-  Neo4j::Cypher.query do
-    node(1).outgoing(rel(:friends).where{|r| r[:since] == 1994})
-  end
-
-
-"START v1=node(2,3,4,1) RETURN count(v1.property?"
-
-  Neo4j::Cypher.query do
-    node(2, 3, 4, 1)[:property?].count
-  end
-
-"START v1=node(42) MATCH (v1)-[:+favorite+]->(stuff)<-[:+favorite+]-(person) WHERE not((v1)-[:`friend`]-(person)) RETURN person.name,count(stuff) ORDER BY count(stuff) DESC"
-
-  Neo4j::Cypher.query do
-    node(42).where_not { |m| m - :friend - :person } > :favorite > :stuff < :favorite < :person
-    ret(node(:person)[:name], count(:stuff).desc)
-  end
-
-
-== Complex Example
-
-"START n=node(42) MATCH (n)-[r]->(m) WITH n,collect(type(r)) as out_types,collect(m) as outgoing MATCH (n)<-[r]-(m) RETURN n,outgoing,out_types,collect(m) as incoming,collect(type(r)) as in_types"
-
-  Neo4j::Cypher.query do
-    n = node(42).as(:n)
-    r = rel('r')
-    m = node(:m)
-    rel_types = r.rel_type.collect
-    end_nodes = m.collect
-
-    n.with_match(rel_types.as(:out_types), end_nodes.as(:outgoing)) { |n, _, _| n < r < m } > r > m
-
-    ret([n,
-         :outgoing,
-         :out_types,
-         end_nodes.as(:incoming),
-         rel_types.as(:in_types)])
- end
-
-
-=== Co-Tagged Places - Places Related through Tags
-
-Find places that are tagged with the same tags: Determine the tags for place x. What else is tagged the same as x that is not x."
-
-"START place=node:node_auto_index(name = "CoffeeShop1") MATCH place-[:tagged]->tag<-[:tagged]-otherPlace RETURN otherPlace.name, collect(tag.name) ORDER By otherPlace.name desc"
-
-Can be written like this:
-
-  Neo4j::Cypher.query do
-    other_place = node(:otherPlace)
-    place = lookup('node_auto_index', 'name', 'CoffeeShop1').as(:place)
-    place > rel(':tagged') > node(:tag) < rel(':tagged') < other_place
-    ret other_place[:name].desc, node(:tag)[:name].collect
-  end
-
-
-Or in one line:
-
-  Neo4j::Cypher.query do
-    lookup('node_auto_index', 'name', 'CoffeeShop1') > rel(':tagged') > node(:tag).ret { |t| t[:name].collect } < rel(':tagged') < node(:otherPlace).ret { |n| n[:name].desc }
-  end
-
+Please read the {Neo4j Cypher Docs}[http://docs.neo4j.org/chunked/stable/] for more examples.
 
 == License
 
