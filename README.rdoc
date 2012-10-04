@@ -5,7 +5,8 @@ The JRuby neo4j-core gem's cypher dsl has been moved to this gem.
 
 == Docs
 
-* {Neo4j Wiki Cypher}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACypher]
+* {The Cypher DSL docs}[https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACypher]
+* {Blog: The Cypher Ruby DSL}[http://www.jayway.com/2012/10/04/the-cypher-ruby-dsl-for-the-neo4j-graph-database/]
 * {Neo4j Cypher Docs}[http://docs.neo4j.org/chunked/stable/]
 * RSpecs (100% test coverage)
 
