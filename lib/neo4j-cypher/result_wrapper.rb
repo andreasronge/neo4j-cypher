@@ -30,11 +30,13 @@ module Neo4j
       # for the Enumerable contract
       def each
         @source.each { |row| yield map(row) }
+          @source.each { |row| yield symbolize_row_keys(row) }
       end
 
+      private
+
       # Maps each row so that we can use symbols for column names.
-      # @private
-      def map(row)
+      def symbolize_row_keys(row)
         out = {} # move to a real hash!
         row.each do |key, value|
           out[key.to_sym] = value.respond_to?(:wrapper) ? value.wrapper : value
