@@ -13,6 +13,8 @@ module Neo4j
     #   r[0][:n].neo_id.should == @a.neo_id
     #   r[1][:n].neo_id.should == @b.neo_id
     class ResultWrapper
+      class ResultsAlreadyConsumedException < Exception; end;
+
       include Enumerable
 
       # @return the original result from the Neo4j Cypher Engine, once forward read only !
@@ -20,6 +22,7 @@ module Neo4j
 
       def initialize(source)
         @source = source
+        @unread = true
       end
 
       # @return [Array<Symbol>] the columns in the query result
@@ -30,6 +33,9 @@ module Neo4j
       # for the Enumerable contract
       def each
         @source.each { |row| yield map(row) }
+        raise ResultsAlreadyConsumedException unless @unread
+
+          @unread = false
           @source.each { |row| yield symbolize_row_keys(row) }
       end
 

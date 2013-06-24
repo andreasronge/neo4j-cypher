@@ -24,13 +24,15 @@ describe Neo4j::Cypher::ResultWrapper do
     end
 
     it 'symbolize the keys' do
-      subject.first.keys.should =~ [:key1, :key2]
-      subject.to_a[1].keys.should =~ [:key1, :key2]
+      results = subject.to_a
+      results[0].keys.should =~ [:key1, :key2]
+      results[1].keys.should =~ [:key1, :key2]
     end
 
     it 'leaves the values as it is' do
-      subject.first.values.should =~ %w[value1 value2]
-      subject.to_a[1].values.should =~ %w[value3 value4]
+      results = subject.to_a
+      results[0].values.should =~ %w[value1 value2]
+      results[1].values.should =~ %w[value3 value4]
     end
 
   end
@@ -39,7 +41,7 @@ describe Neo4j::Cypher::ResultWrapper do
     let(:wrapper) do
       o = Object.new
       o.stub(:wrapper).and_return('something')
-    end\
+    end
 
     subject do
       Neo4j::Cypher::ResultWrapper.new([{'key1' => wrapper}])
@@ -53,6 +55,21 @@ describe Neo4j::Cypher::ResultWrapper do
       subject.first.values.should == [wrapper]
     end
 
+  end
+
+  context 'results are read-once' do
+    let(:source) { [{a: 10, b: 20}, {a: 100, b: 200}] }
+
+    subject do
+      Neo4j::Cypher::ResultWrapper.new(source)
+    end
+
+    it 'raises an exception upon second pass' do
+      subject.to_a
+      expect do
+        subject.to_a
+      end.to raise_error(Neo4j::Cypher::ResultWrapper::ResultsAlreadyConsumedException)
+    end
   end
 
 end
