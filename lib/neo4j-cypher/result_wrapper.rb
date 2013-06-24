@@ -32,11 +32,14 @@ module Neo4j
 
       # for the Enumerable contract
       def each
-        @source.each { |row| yield map(row) }
         raise ResultsAlreadyConsumedException unless @unread
 
+        if block_given?
           @unread = false
           @source.each { |row| yield symbolize_row_keys(row) }
+        else
+          Enumerator.new(self)
+        end
       end
 
       private

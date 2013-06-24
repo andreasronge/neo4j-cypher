@@ -57,6 +57,29 @@ describe Neo4j::Cypher::ResultWrapper do
 
   end
 
+  context 'each works like a standard ruby Enumerator' do
+    let(:source) { [{a: 10, b: 20}, {a: 100, b: 200}] }
+
+    subject do
+      Neo4j::Cypher::ResultWrapper.new(source)
+    end
+
+    it 'iterates over the source if given a block' do
+      acc = []
+      subject.each {|e| acc << e}
+      acc.should == [{a: 10, b: 20}, {a: 100, b: 200}]
+    end
+
+    it 'return an Enumerator object if not given a block' do
+      subject.each.should be_an(Enumerator)
+    end
+
+    it 'chains enumerable calls' do
+      pairs = subject.each_with_index.map{|row, i| [i, row[:a]] }
+      pairs.should == [[0, 10], [1, 100]]
+    end
+  end
+
   context 'results are read-once' do
     let(:source) { [{a: 10, b: 20}, {a: 100, b: 200}] }
 
