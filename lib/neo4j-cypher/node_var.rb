@@ -47,9 +47,9 @@ module Neo4j
           super
         end
 
-        def new(props = nil)
+        def new(props = nil, *labels)
           clause.clause_list.delete(clause)
-          Create.new(clause_list, props).eval_context
+          Create.new(clause_list, props, labels).eval_context
         end
 
         def [](p)

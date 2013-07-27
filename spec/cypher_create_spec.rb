@@ -59,6 +59,34 @@ describe "Neo4j::Cypher" do
         end
       end
 
+      # Label support
+      describe "node.new({}, :person).as(:a); :a" do
+        it do
+          Proc.new do
+            node.new({}, :person).as(:a) # Notice, no "" around the string !
+            :a
+          end.should be_cypher(%Q[CREATE (a:`person`) RETURN a])
+        end
+      end
+
+      describe "node.new({}, :person, :friend).as(:a); :a" do
+        it do
+          Proc.new do
+            node.new({}, :person, :friend).as(:a) # Notice, no "" around the string !
+            :a
+          end.should be_cypher(%Q[CREATE (a:`person`:`friend`) RETURN a])
+        end
+      end
+
+      describe "node.new({name: 'kalle'}, :person, :friend).as(:a); :a" do
+        it do
+          Proc.new do
+            node.new({name: 'kalle'}, :person, :friend).as(:a) # Notice, no "" around the string !
+            :a
+          end.should be_cypher(%Q[CREATE (a:`person`:`friend` {name : 'kalle'}) RETURN a])
+        end
+      end
+
     end
 
     describe 'create_path' do

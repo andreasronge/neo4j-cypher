@@ -19,9 +19,10 @@ module Neo4j
     class Create
       include Clause
 
-      def initialize(clause_list, props)
+      def initialize(clause_list, props, labels=nil)
         super(clause_list, :create, EvalContext)
-        @props = props
+        @props = props unless props && props.empty?
+        @labels = labels unless labels && labels.empty?
       end
 
       def as_create_path?
@@ -37,10 +38,12 @@ module Neo4j
       end
 
       def to_cypher
+        label_suffix = @labels && ":" + @labels.map{|name| "`#{name.to_s}`"}.join(':')
+
         without_parantheses = if @props
-                                "#{var_name} #{to_prop_string(@props)}"
+                                "#{var_name}#{label_suffix} #{to_prop_string(@props)}"
                               else
-                                var_name
+                                "#{var_name}#{label_suffix}"
                               end
 
         as_create_path? ? without_parantheses : "(#{without_parantheses})"
