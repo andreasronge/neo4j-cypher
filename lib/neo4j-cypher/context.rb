@@ -297,6 +297,16 @@ module Neo4j
           self
         end
 
+        def set_label(*labels)
+          Label.new(clause_list, clause, labels, :set)
+          self
+        end
+
+        def del_label(*labels)
+          Label.new(clause_list, clause, labels, :remove)
+          self
+        end
+
         def del
           Delete.new(clause_list, clause)
           self

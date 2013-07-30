@@ -108,9 +108,9 @@ module Neo4j
 
       def prefix_for_depth_2
         if include?(:match) && include?(:where)
-          [:set, :delete, :create, :where]
+          [:set, :delete, :create, :remove, :where]
         else
-          [:set, :delete, :create]
+          [:set, :delete, :create, :remove]
         end
 
       end

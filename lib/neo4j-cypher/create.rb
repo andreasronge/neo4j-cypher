@@ -1,6 +1,20 @@
 module Neo4j
   module Cypher
 
+    class Label
+      include Clause
+
+      def initialize(clause_list, var, labels, clause_type)
+        super(clause_list, clause_type)
+        @var = var
+        @labels = labels
+      end
+
+      def to_cypher
+        "#{@var.var_name.to_s} :#{@labels.map(&:to_s).join(':')}"
+      end
+    end
+
     class Delete
       include Clause
 

@@ -205,6 +205,31 @@ describe "Neo4j::Cypher" do
     end
 
     describe 'set' do
+
+      describe "node(2).tap { |n| n.set_label(:person) }" do
+        it do
+          Proc.new { node(2).tap { |n| n.set_label(:person) } }.should be_cypher('START v1=node(2) SET v1 :person RETURN v1')
+        end
+      end
+
+      describe "node(2).tap { |n| n.set_label('Person', 'Friend') }" do
+        it do
+          Proc.new { node(2).tap { |n| n.set_label('Person', 'Friend') } }.should be_cypher('START v1=node(2) SET v1 :Person:Friend RETURN v1')
+        end
+      end
+
+      describe "node(2).tap { |n| n.del_label(:person) }" do
+        it do
+          Proc.new { node(2).tap { |n| n.del_label(:person) } }.should be_cypher('START v1=node(2) REMOVE v1 :person RETURN v1')
+        end
+      end
+
+      describe "node(2).tap { |n| n.del_label(:person, :friend) }" do
+        it do
+          Proc.new { node(2).tap { |n| n.del_label(:person, :friend) } }.should be_cypher('START v1=node(2) REMOVE v1 :person:friend RETURN v1')
+        end
+      end
+
       describe "node(2).tap{|n| n[:surname] = 'Taylor'}" do
         it do
           Proc.new { node(2).tap { |n| n[:surname] = 'Taylor' } }.should be_cypher('START v1=node(2) SET v1.surname = "Taylor" RETURN v1')

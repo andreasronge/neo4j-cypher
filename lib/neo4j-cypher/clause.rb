@@ -5,10 +5,10 @@ module Neo4j
     # Does expect a #clause method when included
     module Clause
 
-      ORDER = [:start, :match, :create, :where, :with, :foreach, :set, :delete, :return, :order_by, :skip, :limit]
+      ORDER = [:start, :match, :create, :where, :with, :foreach, :set, :delete, :remove, :return, :order_by, :skip, :limit]
       NAME = {:start => 'START', :create => 'CREATE', :match => 'MATCH', :where => "WHERE", :with => 'WITH',
               :return => 'RETURN', :order_by => 'ORDER BY', :skip => 'SKIP', :limit => 'LIMIT', :set => 'SET',
-              :delete => 'DELETE', :foreach => 'FOREACH'}
+              :remove => 'REMOVE', :delete => 'DELETE', :foreach => 'FOREACH'}
 
       attr_accessor :clause_type, :clause_list, :eval_context, :expr, :insert_order
 
