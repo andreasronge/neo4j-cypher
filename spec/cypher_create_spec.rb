@@ -208,31 +208,44 @@ describe "Neo4j::Cypher" do
 
       describe "node(2).tap { |n| n.set_label(:person) }" do
         it do
-          Proc.new { node(2).tap { |n| n.set_label(:person) } }.should be_cypher('START v1=node(2) SET v1 :person RETURN v1')
+          Proc.new { node(2).tap { |n| n.set_label(:person) } }.should be_cypher('START v1=node(2) SET v1 :person')
         end
       end
 
       describe "node(2).tap { |n| n.set_label('Person', 'Friend') }" do
         it do
-          Proc.new { node(2).tap { |n| n.set_label('Person', 'Friend') } }.should be_cypher('START v1=node(2) SET v1 :Person:Friend RETURN v1')
+          Proc.new { node(2).tap { |n| n.set_label('Person', 'Friend') } }.should be_cypher('START v1=node(2) SET v1 :Person:Friend')
         end
       end
 
       describe "node(2).tap { |n| n.del_label(:person) }" do
         it do
-          Proc.new { node(2).tap { |n| n.del_label(:person) } }.should be_cypher('START v1=node(2) REMOVE v1 :person RETURN v1')
+          Proc.new { node(2).tap { |n| n.del_label(:person) } }.should be_cypher('START v1=node(2) REMOVE v1 :person')
         end
       end
 
       describe "node(2).tap { |n| n.del_label(:person, :friend) }" do
         it do
-          Proc.new { node(2).tap { |n| n.del_label(:person, :friend) } }.should be_cypher('START v1=node(2) REMOVE v1 :person:friend RETURN v1')
+          Proc.new { node(2).tap { |n| n.del_label(:person, :friend) } }.should be_cypher('START v1=node(2) REMOVE v1 :person:friend')
         end
       end
 
       describe "node(2).tap{|n| n[:surname] = 'Taylor'}" do
         it do
-          Proc.new { node(2).tap { |n| n[:surname] = 'Taylor' } }.should be_cypher('START v1=node(2) SET v1.surname = "Taylor" RETURN v1')
+          Proc.new { node(2).tap { |n| n[:surname] = 'Taylor' } }.should be_cypher('START v1=node(2) SET v1.surname = "Taylor"')
+        end
+      end
+
+      describe "n=node(2); n[:surname] = 'Taylor'; ret(n)" do
+        it do
+          Proc.new { n=node(2); n[:surname] = 'Taylor'; ret(n) }.should be_cypher('START v1=node(2) SET v1.surname = "Taylor" RETURN v1')
+        end
+      end
+
+      # Remove property
+      describe "node(2).tap{|n| n[:surname] = nil}" do
+        it do
+          Proc.new { node(2).tap { |n| n[:surname] = :NULL } }.should be_cypher('START v1=node(2) SET v1.surname = NULL')
         end
       end
 

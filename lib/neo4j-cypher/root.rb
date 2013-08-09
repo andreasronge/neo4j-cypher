@@ -14,6 +14,8 @@ module Neo4j
           return if clause_list.include?(:return)
           return if clause_list.include?(:with)
           return if clause_list.include?(:delete)
+          return if clause_list.include?(:set)
+          return if clause_list.include?(:remove)
         end
         create_returns(result)
       end
