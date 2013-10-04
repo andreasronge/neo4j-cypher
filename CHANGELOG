@@ -1,3 +1,8 @@
+== 1.0.1 / 2013-10-04
+  Fix so that SET and REMOVE clauses does not need to return something
+  Added support to remove and add labels (n.set_label(:person) and n.del_label(:person)
+  Make the ResultWrapper return an Enumerator when not given a block (Alex Burkhart)
+
 == 1.0.0 / 2012-10-02
   Support for Ruby :& operator
   Refactorings and minor improvements
