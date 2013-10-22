@@ -41,7 +41,7 @@ module Neo4j
         right_operand = Regexp.new(right_operand) if op == '=~' && right_operand.is_a?(String)
         @left_operand = Operand.new(left_operand)
         raise "No Leftoperatnd #{left_operand.class}" unless @left_operand.obj
-        @right_operand = Operand.new(right_operand) if right_operand
+        @right_operand = Operand.new(right_operand) unless right_operand.nil?
         @op = (@right_operand && @right_operand.regexp?) ? '=~' : op
         @post_fix = post_fix
         @valid = true
