@@ -59,7 +59,7 @@ module Neo4j
       end
 
       def self.query_node_by_class(clause_list, index_class, query, index_type)
-        LuceneQuery.new(clause_list, "#{_index_name_for_type(index_class, index_type)}(#{query})", 'node')
+        LuceneQuery.new(clause_list, "#{_index_name_for_type(index_class, index_type)}('#{query}')", 'node')
       end
 
       def self.lookup_rel_by_class(clause_list, index_class, key, value)
@@ -67,7 +67,7 @@ module Neo4j
       end
 
       def self.query_rel_by_class(clause_list, index_class, query, index_type)
-        LuceneQuery.new(clause_list, "#{_index_name_for_type(index_class, index_type)}(#{query})", 'relationship')
+        LuceneQuery.new(clause_list, "#{_index_name_for_type(index_class, index_type)}('#{query}')", 'relationship')
       end
 
       def self._index_name_for_type(index_class , index_type)
