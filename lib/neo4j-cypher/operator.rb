@@ -20,7 +20,6 @@ module Neo4j
         elsif @obj.is_a?(MatchStart)
           "(#{@obj.to_cypher})"
         elsif @obj.respond_to?(:expr) && @obj.expr
-          puts @obj.expr
           @obj.expr
         elsif @obj.respond_to?(:source)
           "'#{@obj.source}'"
