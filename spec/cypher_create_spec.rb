@@ -245,7 +245,7 @@ describe "Neo4j::Cypher" do
       # Remove property
       describe "node(2).tap{|n| n[:surname] = nil}" do
         it do
-          Proc.new { node(2).tap { |n| n[:surname] = :NULL } }.should be_cypher('START v1=node(2) SET v1.surname = NULL')
+          Proc.new { node(2).tap { |n| n[:surname] = nil } }.should be_cypher('START v1=node(2) SET v1.surname = NULL')
         end
       end
 

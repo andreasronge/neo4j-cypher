@@ -28,7 +28,6 @@ module Neo4j
         else
           @obj.to_s
         end
-
       end
     end
 
@@ -38,6 +37,7 @@ module Neo4j
 
       def initialize(clause_list, left_operand, right_operand, op, clause_type = :where, post_fix = nil, &dsl)
         super(clause_list, clause_type, EvalContext)
+        right_operand ||= :NULL if op == '='
         right_operand = Regexp.new(right_operand) if op == '=~' && right_operand.is_a?(String)
         @left_operand = Operand.new(left_operand)
         raise "No Leftoperatnd #{left_operand.class}" unless @left_operand.obj
