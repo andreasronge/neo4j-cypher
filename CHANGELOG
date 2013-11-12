@@ -1,3 +1,10 @@
+
+== 1.0.2 / 2013-11-12
+  Fix escape both single and double quotes for string property values (blizkreeg, #8)
+  converting nil values to :NULL if operator is assignment (kamranjon, #5)
+  node updates fail when a property value is set to boolean false (blizkreeg)
+  fixed bug that was causing node updates to fail when a property value was set to boolean false (Vineet)	
+	
 == 1.0.1 / 2013-10-04
   Fix so that SET and REMOVE clauses does not need to return something
   Added support to remove and add labels (n.set_label(:person) and n.del_label(:person)

@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name     = "neo4j-cypher"
   s.version  = Neo4j::Cypher::VERSION
   s.required_ruby_version = ">= 1.8.7"
-
+  s.license  = 'MIT'
   s.authors  = "Andreas Ronge"
   s.email    = 'andreas.ronge@gmail.com'
   s.homepage = "http://github.com/andreasronge/neo4j-cypher/tree"
