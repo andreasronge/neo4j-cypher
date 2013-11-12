@@ -90,7 +90,7 @@ module Neo4j
       def to_prop_string(props)
         key_values = props.keys.map do |key|
           raw = key.to_s[0, 1] == '_'
-          escaped_string = props[key].gsub(/'/, "\\\\'") if props[key].is_a?(String) && !raw
+          escaped_string = props[key].gsub(/['"]/) { |s| "\#{s}" } if props[key].is_a?(String) && !raw
           val = props[key].is_a?(String) && !raw ? "'#{escaped_string}'" : props[key]
           "#{raw ? key.to_s[1..-1] : key} : #{val}"
         end
