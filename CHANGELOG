@@ -1,4 +1,6 @@
-
+== 1.0.3 / 2014-02-12
+  Escape both single and double quotes for string property values (#9)
+	
 == 1.0.2 / 2013-11-12
   Fix escape both single and double quotes for string property values (blizkreeg, #8)
   converting nil values to :NULL if operator is assignment (kamranjon, #5)
