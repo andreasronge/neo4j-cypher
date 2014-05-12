@@ -1,3 +1,6 @@
+== 1.0.4 / 2014-05-12
+  fixed boolean value updates bug (#12, blizkreeg)
+
 == 1.0.3 / 2014-02-12
   Escape both single and double quotes for string property values (#9)
 	
